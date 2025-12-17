@@ -13,6 +13,7 @@ module com.example.demo {
     requires com.almasb.fxgl.all;
     requires annotations;
     requires java.desktop;
+    requires javafx.base;
 
 
 //    opens com.example.demo to javafx.fxml;
@@ -20,6 +21,4 @@ module com.example.demo {
 
     opens SHAIF to javafx.graphics;
     exports SHAIF;
-    exports SHAIF.game;
-    opens SHAIF.game to javafx.graphics;
 }

@@ -1,55 +1,37 @@
 package SHAIF.controller;
 
-import SHAIF.game.Game;
-import SHAIF.model.Player;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import SHAIF.model.Player;
+import SHAIF.model.FormType;
 
-import java.awt.event.KeyAdapter;
+public class KeyInput {
 
-public class KeyInput extends KeyAdapter {
-    public boolean up, down, left, right;
-    public boolean dash;
-    public boolean shoot;
-    public double mouseX, mouseY;
+    private boolean left, right;
 
-    public void bind(Scene scene) {
+    public KeyInput(Scene scene, Player player, DashController dash) {
+
         scene.setOnKeyPressed(e -> {
-            switch (e.getCode()) {
-                case W -> up = true;
-                case S -> down = true;
-                case A -> left = true;
-                case D -> right = true;
+            if (e.getCode() == KeyCode.A) left = true;
+            if (e.getCode() == KeyCode.D) right = true;
+            if (e.getCode() == KeyCode.W) player.jump();
 
-                case DIGIT1 -> Game.player.setForm(Player.Form.CIRCLE);
-                case DIGIT2 -> Game.player.setForm(Player.Form.SQUARE);
-                case DIGIT3 -> Game.player.setForm(Player.Form.TRIANGLE);
-                case DIGIT4 -> Game.player.setForm(Player.Form.STAR);
-
-                case SPACE -> dash = true;
+            if (e.getCode() == KeyCode.U) player.switchForm(FormType.CIRCLE);
+            if (e.getCode() == KeyCode.O) player.switchForm(FormType.SQUARE);
+            if (e.getCode() == KeyCode.I) {
+                player.switchForm(FormType.TRIANGLE);
+                dash.dash();
             }
         });
 
         scene.setOnKeyReleased(e -> {
-            switch (e.getCode()) {
-                case W -> up = false;
-                case S -> down = false;
-                case A -> left = false;
-                case D -> right = false;
-                case SPACE -> dash = false;
-            }
+            if (e.getCode() == KeyCode.A) left = false;
+            if (e.getCode() == KeyCode.D) right = false;
         });
+    }
 
-        scene.setOnMouseMoved(e -> {
-            mouseX = e.getX();
-            mouseY = e.getY();
-        });
-
-        scene.setOnMouseDragged(e -> {
-            mouseX = e.getX();
-            mouseY = e.getY();
-        });
-
-        scene.setOnMousePressed(e -> shoot = true);
-        scene.setOnMouseReleased(e -> shoot = false);
+    public void update(Player player) {
+        if (left) player.move(-3);
+        if (right) player.move(3);
     }
 }

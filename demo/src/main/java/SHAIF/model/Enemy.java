@@ -1,28 +1,28 @@
 package SHAIF.model;
 
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 
 public class Enemy {
-    public Circle shape = new Circle(20, Color.PINK);
-    double x, y;
 
-    public Enemy(double x, double y) {
-        this.x = x;
-        this.y = y;
-        shape.setTranslateX(x);
-        shape.setTranslateY(y);
+    private final Rectangle body = new Rectangle(30, 40);
+
+    public Enemy() {
+        body.setFill(Color.PURPLE);
+        body.setX(600);
+        body.setY(300);
     }
 
-    public void update(Player p) {
-        double dx = p.x - x;
-        double dy = p.y - y;
+    public Rectangle getBody() {
+        return body;
+    }
 
-        double len = Math.sqrt(dx*dx + dy*dy);
-        x += (dx / len) * 2;
-        y += (dy / len) * 2;
+    public boolean isAlive() {
+        return !body.isDisable();
+    }
 
-        shape.setTranslateX(x);
-        shape.setTranslateY(y);
+    public void kill() {
+        body.setFill(Color.PINK);
+        body.setDisable(true);
     }
 }

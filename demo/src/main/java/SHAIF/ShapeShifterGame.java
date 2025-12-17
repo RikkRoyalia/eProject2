@@ -1,10 +1,6 @@
 package SHAIF;
 
 import javafx.animation.AnimationTimer;
-import javafx.animation.ScaleTransition;
-import javafx.animation.SequentialTransition;
-import javafx.animation.TranslateTransition;
-import javafx.animation.Interpolator;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
@@ -12,7 +8,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
 public class ShapeShifterGame extends Application {
@@ -27,6 +22,11 @@ public class ShapeShifterGame extends Application {
     double velY = 0;
     boolean onGround = false;
     boolean movingLeft = false, movingRight = false;
+    boolean isDashing = false;
+    int dashDistanceLeft = 0;
+    int dashDir = 1; // 1 = phải, -1 = trái
+    int walkSpeed = 3;
+    int dashSpeed = 10; // thử 8–12 là thấy khác liền
 
     Rectangle squareForm = new Rectangle(30, 30);
     Circle circleForm = new Circle(0,15,15);
@@ -160,37 +160,14 @@ public class ShapeShifterGame extends Application {
     }
 
     void dashAttack() {
-        // Animation nhún trước
-        ScaleTransition compress = new ScaleTransition(Duration.millis(70), player);
-        compress.setToY(0.85);
+        if (isDashing) return; // đang dash thì thôi
 
-        // Dash move
-        TranslateTransition dashMove = new TranslateTransition(Duration.millis(120), player);
-        dashMove.setByX(40);
-        dashMove.setInterpolator(Interpolator.EASE_OUT);
+        isDashing = true;
+        dashDistanceLeft = 60; // tổng quãng dash = 20px
 
-        // Bật lại form bình thường
-        ScaleTransition relax = new ScaleTransition(Duration.millis(70), player);
-        relax.setToY(1.0);
-
-        dashMove.setOnFinished(e -> {
-            // cập nhật playerX để game logic biết ta đã dash xong
-            playerX += 40;
-
-            // kiểm tra va chạm sau dash
-            if (player.getBoundsInParent().intersects(enemy.getBoundsInParent())) {
-                enemy.setFill(Color.PINK);
-                enemy.setDisable(true);
-            }
-        });
-
-        SequentialTransition dashAnim = new SequentialTransition(
-                compress,
-                dashMove,
-                relax
-        );
-
-        dashAnim.play();
+        // xác định hướng dash
+        if (movingLeft) dashDir = -1;
+        else dashDir = 1;
     }
 
     void applyGravity() {
@@ -207,14 +184,31 @@ public class ShapeShifterGame extends Application {
     }
 
     void handleMovement() {
-        if (currentForm == Form.CIRCLE) {
-            if (movingLeft) playerX -= 3;
-            if (movingRight) playerX += 3;
+
+        if (isDashing) {
+            playerX += dashDir * dashSpeed;
+            dashDistanceLeft -= dashSpeed;
+
+            if (player.getBoundsInParent().intersects(enemy.getBoundsInParent())) {
+                enemy.setDisable(true);
+                isDashing = false;
+            }
+
+            if (dashDistanceLeft <= 0) {
+                isDashing = false;
+            }
+        } else {
+            // di chuyển bình thường
+            if (currentForm == Form.CIRCLE) {
+                if (movingLeft) playerX -= 3;
+                if (movingRight) playerX += 3;
+            }
         }
 
         player.setTranslateX(playerX);
         player.setTranslateY(playerY);
     }
+
 
     void checkCollisions() {
         // Bullet hitting player
