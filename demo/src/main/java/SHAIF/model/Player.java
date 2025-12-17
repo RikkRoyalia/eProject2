@@ -1,76 +1,78 @@
 package SHAIF.model;
 
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Polygon;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Shape;
+import javafx.scene.shape.*;
 
+public class Player {
 
-public class Player extends InteractiveObjects {
-    public enum Form {CIRCLE, SQUARE, TRIANGLE, STAR}
-    public Form form = Form.CIRCLE;
-    public Shape shape;
-    public double x, y;
-    public double speed = 5;
-    public Player(double x, double y) {
-        this.x = x;
-        this.y = y;
-        setForm(Form.CIRCLE);
+    private Shape currentShape;
+    private double x = 100, y = 300;
+    private double velY = 0;
+    private boolean onGround = false;
+
+    private final Rectangle square = new Rectangle(30, 30);
+    private final Circle circle = new Circle(15);
+    private final Polygon triangle = new Polygon(
+            0.0, 0.0,
+            0.0, 30.0,
+            30.0, 15.0
+    );
+
+    private FormType currentForm = FormType.SQUARE;
+
+    public Player() {
+        square.setFill(Color.DARKBLUE);
+        circle.setFill(Color.DARKRED);
+        triangle.setFill(Color.DARKGREEN);
+        switchForm(FormType.CIRCLE);
     }
 
-    public void setForm(Form newForm) {
-        this.form = newForm;
-
-        switch (newForm) {
-            case CIRCLE:
-                shape = new Circle(20, Color.CYAN);
-                speed = 6;
+    public void switchForm(FormType form) {
+        currentForm = form;
+        switch (form) {
+            case SQUARE : {
+                currentShape = square;
                 break;
-
-            case SQUARE:
-                shape = new Rectangle(40, 40);
-                shape.setFill(Color.ORANGE);
-                speed = 3;
-                break;
-
-            case TRIANGLE:
-                Polygon tri = new Polygon();
-                tri.getPoints().addAll(
-                        0.0, -25.0,
-                        20.0, 15.0,
-                        -20.0, 15.0
-                );
-                tri.setFill(Color.LIGHTGREEN);
-                shape = tri;
-                speed = 5;
-                break;
-
-            case STAR:
-                Polygon star = new Polygon(
-                        0, -25,
-                        7, -7,
-                        25, -7,
-                        10, 5,
-                        15, 25,
-                        0, 12,
-                        -15, 25,
-                        -10, 5,
-                        -25, -7,
-                        -7, -7
-                );
-                star.setFill(Color.YELLOW);
-                shape = star;
-                speed = 4;
-                break;
+            }
+            case CIRCLE : {currentShape = circle; break;}
+            case TRIANGLE : {currentShape = triangle;}
         }
-
-        shape.setTranslateX(x);
-        shape.setTranslateY(y);
+        updatePosition();
     }
 
-    public void updatePos() {
-        shape.setTranslateX(x);
-        shape.setTranslateY(y);
+    public void applyGravity() {
+        velY += 0.5;
+        y += velY;
+
+        if (y > 380) {
+            y = 380;
+            velY = 0;
+            onGround = true;
+        } else {
+            onGround = false;
+        }
+        updatePosition();
+    }
+
+    public void move(double dx) {
+        x += dx;
+        updatePosition();
+    }
+
+    public void jump() {
+        if (onGround) velY = -12;
+    }
+
+    private void updatePosition() {
+        currentShape.setTranslateX(x);
+        currentShape.setTranslateY(y);
+    }
+
+    public Shape getShape() {
+        return currentShape;
+    }
+
+    public FormType getCurrentForm() {
+        return currentForm;
     }
 }
