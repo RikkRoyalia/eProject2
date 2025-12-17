@@ -21,8 +21,4 @@ module com.example.demo {
 
     opens SHAIF to javafx.graphics;
     exports SHAIF;
-    exports SHAIF.game;
-    opens SHAIF.game to javafx.graphics;
-    exports SHAIF.controller;
-    opens SHAIF.controller to javafx.graphics;
 }
