@@ -32,22 +32,21 @@ public class KeyInput {
                 player.jump();
             }
 
-            // Chuyển hình dạng - QUAN TRỌNG: phải remove shape cũ và add shape mới
-            if (e.getCode() == KeyCode.U) {
-                gameView.removeNode(player.getCurrentShape());
-                player.switchForm(FormType.CIRCLE);
-                gameView.addNode(player.getCurrentShape());
-            }
+            // Chuyển hình dạng
+            // I - Chuyển sang tam giác và dash, sẽ tự động về tròn khi dash kết thúc
             if (e.getCode() == KeyCode.I) {
-                gameView.removeNode(player.getCurrentShape());
-                player.switchForm(FormType.TRIANGLE);
-                gameView.addNode(player.getCurrentShape());
+                // Chọn hướng tam giác dựa vào hướng di chuyển
+                if (player.isMovingLeft()) {
+                    switchToShape(FormType.L_TRIANGLE);  // Tam giác trái
+                } else {
+                    switchToShape(FormType.TRIANGLE);     // Tam giác phải (mặc định)
+                }
                 dashController.startDash();
             }
+
+            // O - Chuyển sang vuông (chỉ khi giữ phím)
             if (e.getCode() == KeyCode.O) {
-                gameView.removeNode(player.getCurrentShape());
-                player.switchForm(FormType.SQUARE);
-                gameView.addNode(player.getCurrentShape());
+                switchToShape(FormType.SQUARE);
             }
         });
 
@@ -58,6 +57,18 @@ public class KeyInput {
             if (e.getCode() == KeyCode.RIGHT || e.getCode() == KeyCode.D) {
                 player.stopMovingRight();
             }
+
+            // O released - Chuyển về hình tròn ngay lập tức
+            if (e.getCode() == KeyCode.O) {
+                switchToShape(FormType.CIRCLE);
+            }
         });
+    }
+
+    // Helper method để chuyển đổi hình dạng
+    private void switchToShape(FormType formType) {
+        gameView.removeNode(player.getCurrentShape());
+        player.switchForm(formType);
+        gameView.addNode(player.getCurrentShape());
     }
 }

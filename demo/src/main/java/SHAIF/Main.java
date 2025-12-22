@@ -47,8 +47,8 @@ public class Main extends Application {
         gameView.addNode(enemy.getShape());
         gameView.addNode(bullet.getShape());
 
-        // Khởi tạo Controllers (truyền gameView vào KeyInput)
-        DashController dashController = new DashController(player);
+        // Khởi tạo Controllers (truyền gameView vào DashController)
+        DashController dashController = new DashController(player, gameView);
         KeyInput keyInput = new KeyInput(player, dashController, gameView);
         GameLoop gameLoop = new GameLoop(gameView, player, enemy, bullet, dashController);
 

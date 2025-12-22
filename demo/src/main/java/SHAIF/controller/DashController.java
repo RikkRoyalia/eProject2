@@ -1,10 +1,13 @@
 package SHAIF.controller;
 
 import SHAIF.model.Player;
+import SHAIF.model.FormType;
 import SHAIF.model.InteractiveObjects;
+import SHAIF.view.GameView;
 
 public class DashController {
     private final Player player;
+    private final GameView gameView;
 
     private boolean isDashing;
     private int dashDistanceLeft;
@@ -13,8 +16,9 @@ public class DashController {
     private final int dashSpeed = 10;
     private final int dashDistance = 60;
 
-    public DashController(Player player) {
+    public DashController(Player player, GameView gameView) {
         this.player = player;
+        this.gameView = gameView;
         this.isDashing = false;
         this.dashDistanceLeft = 0;
         this.dashDir = 1;
@@ -25,6 +29,8 @@ public class DashController {
 
         isDashing = true;
         dashDistanceLeft = dashDistance;
+        player.setDashing(true); // Bật flag dash cho player
+        player.setVelY(0); // Cancel velocity từ nhảy
 
         // Xác định hướng dash dựa vào movement của player
         if (player.isMovingLeft()) {
@@ -43,13 +49,25 @@ public class DashController {
         dashDistanceLeft -= dashSpeed;
 
         if (dashDistanceLeft <= 0) {
-            isDashing = false;
+            endDash();
         }
     }
 
-    public void stopDash() {
+    private void endDash() {
         isDashing = false;
         dashDistanceLeft = 0;
+        player.setDashing(false); // Tắt flag dash cho player
+
+        // Tự động chuyển về hình tròn khi dash kết thúc
+        gameView.removeNode(player.getCurrentShape());
+        player.switchForm(FormType.CIRCLE);
+        gameView.addNode(player.getCurrentShape());
+    }
+
+    public void stopDash() {
+        if (isDashing) {
+            endDash();
+        }
     }
 
     public boolean isDashing() {

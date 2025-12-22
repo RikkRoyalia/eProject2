@@ -3,5 +3,6 @@ package SHAIF.model;
 public enum FormType {
     SQUARE,
     CIRCLE,
-    TRIANGLE
+    TRIANGLE,
+    L_TRIANGLE
 }
