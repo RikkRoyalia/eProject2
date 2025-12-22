@@ -5,4 +5,3 @@ public enum FormType {
     CIRCLE,
     TRIANGLE
 }
-

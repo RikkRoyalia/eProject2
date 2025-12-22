@@ -1,36 +1,58 @@
 package SHAIF.view;
 
-import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
-import SHAIF.model.*;
-import SHAIF.controller.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 public class GameView {
+    private final Pane root;
+    private Rectangle goal;
 
-    public GameView(Stage stage) {
-
-        Pane root = new Pane();
+    public GameView() {
+        root = new Pane();
         root.setPrefSize(800, 450);
 
-        Player player = new Player();
-        Enemy enemy = new Enemy();
-        Bullet bullet = new Bullet();
-
-        root.getChildren().addAll(
-                player.getShape(),
-                enemy.getBody(),
-                bullet.getShape()
-        );
-
-        Scene scene = new Scene(root);
-        DashController dash = new DashController(player, enemy);
-        KeyInput input = new KeyInput(scene, player, dash);
-
-        new GameLoop(player, enemy, bullet, input).start();
-
-        stage.setScene(scene);
-        stage.setTitle("Shape Shifter Platformer");
-        stage.show();
+        setupPlatforms();
+        setupGoal();
     }
+
+    private void setupPlatforms() {
+        // Nền
+        Rectangle ground = new Rectangle(800, 40);
+        ground.setFill(Color.GRAY);
+        ground.setY(410);
+
+        // Chướng ngại vật
+        Rectangle obstacle = new Rectangle(100, 20);
+        obstacle.setFill(Color.DARKGRAY);
+        obstacle.setX(300);
+        obstacle.setY(360);
+
+        // Hố đen
+        Rectangle pit = new Rectangle(60, 200);
+        pit.setFill(Color.BLACK);
+        pit.setX(200);
+        pit.setY(260);
+
+        root.getChildren().addAll(ground, obstacle, pit);
+    }
+
+    private void setupGoal() {
+        goal = new Rectangle(10, 80);
+        goal.setFill(Color.GOLD);
+        goal.setX(750);
+        goal.setY(250);
+        root.getChildren().add(goal);
+    }
+
+    public void addNode(javafx.scene.Node node) {
+        root.getChildren().add(node);
+    }
+
+    public void removeNode(javafx.scene.Node node) {
+        root.getChildren().remove(node);
+    }
+
+    public Pane getRoot() { return root; }
+    public Rectangle getGoal() { return goal; }
 }

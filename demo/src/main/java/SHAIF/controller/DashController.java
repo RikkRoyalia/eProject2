@@ -1,55 +1,63 @@
 package SHAIF.controller;
 
-import javafx.animation.Interpolator;
-import javafx.animation.ScaleTransition;
-import javafx.animation.SequentialTransition;
-import javafx.animation.TranslateTransition;
-import javafx.util.Duration;
-import SHAIF.model.Enemy;
 import SHAIF.model.Player;
+import SHAIF.model.InteractiveObjects;
 
 public class DashController {
-
     private final Player player;
-    private final Enemy enemy;
 
-    private boolean canDash = true;
+    private boolean isDashing;
+    private int dashDistanceLeft;
+    private int dashDir; // 1 = phải, -1 = trái
 
-    public DashController(Player player, Enemy enemy) {
+    private final int dashSpeed = 10;
+    private final int dashDistance = 60;
+
+    public DashController(Player player) {
         this.player = player;
-        this.enemy = enemy;
+        this.isDashing = false;
+        this.dashDistanceLeft = 0;
+        this.dashDir = 1;
     }
 
-    public void dash() {
-        if (!canDash) return;
-        canDash = false;
+    public void startDash() {
+        if (isDashing) return;
 
-        var shape = player.getShape();
+        isDashing = true;
+        dashDistanceLeft = dashDistance;
 
-        ScaleTransition compress = new ScaleTransition(Duration.millis(70), shape);
-        compress.setToY(0.85);
+        // Xác định hướng dash dựa vào movement của player
+        if (player.isMovingLeft()) {
+            dashDir = -1;
+        } else {
+            dashDir = 1;
+        }
+    }
 
-        TranslateTransition dashMove = new TranslateTransition(Duration.millis(120), shape);
-        dashMove.setByX(40);
-        dashMove.setInterpolator(Interpolator.EASE_OUT);
+    public void update() {
+        if (!isDashing) return;
 
-        ScaleTransition relax = new ScaleTransition(Duration.millis(70), shape);
-        relax.setToY(1.0);
+        double newX = player.getX() + (dashDir * dashSpeed);
+        player.setX(newX);
 
-        dashMove.setOnFinished(e -> {
-            player.move(40);
+        dashDistanceLeft -= dashSpeed;
 
-            if (shape.getBoundsInParent()
-                    .intersects(enemy.getBody().getBoundsInParent())) {
-                enemy.kill();
-            }
-            canDash = true;
-        });
+        if (dashDistanceLeft <= 0) {
+            isDashing = false;
+        }
+    }
 
-        new SequentialTransition(
-                compress,
-                dashMove,
-                relax
-        ).play();
+    public void stopDash() {
+        isDashing = false;
+        dashDistanceLeft = 0;
+    }
+
+    public boolean isDashing() {
+        return isDashing;
+    }
+
+    public boolean checkCollision(InteractiveObjects object) {
+        if (!isDashing) return false;
+        return object.intersects(player.getCurrentShape());
     }
 }

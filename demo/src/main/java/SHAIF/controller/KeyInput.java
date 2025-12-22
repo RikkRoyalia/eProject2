@@ -1,37 +1,63 @@
 package SHAIF.controller;
 
-import javafx.scene.Scene;
-import javafx.scene.input.KeyCode;
 import SHAIF.model.Player;
 import SHAIF.model.FormType;
+import SHAIF.view.GameView;
+import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
 
 public class KeyInput {
+    private final Player player;
+    private final DashController dashController;
+    private final GameView gameView;
 
-    private boolean left, right;
+    public KeyInput(Player player, DashController dashController, GameView gameView) {
+        this.player = player;
+        this.dashController = dashController;
+        this.gameView = gameView;
+    }
 
-    public KeyInput(Scene scene, Player player, DashController dash) {
-
+    public void setupInput(Scene scene) {
         scene.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.A) left = true;
-            if (e.getCode() == KeyCode.D) right = true;
-            if (e.getCode() == KeyCode.W) player.jump();
+            // Di chuyển
+            if (e.getCode() == KeyCode.LEFT || e.getCode() == KeyCode.A) {
+                player.moveLeft();
+            }
+            if (e.getCode() == KeyCode.RIGHT || e.getCode() == KeyCode.D) {
+                player.moveRight();
+            }
 
-            if (e.getCode() == KeyCode.U) player.switchForm(FormType.CIRCLE);
-            if (e.getCode() == KeyCode.O) player.switchForm(FormType.SQUARE);
+            // Nhảy
+            if (e.getCode() == KeyCode.UP || e.getCode() == KeyCode.W) {
+                player.jump();
+            }
+
+            // Chuyển hình dạng - QUAN TRỌNG: phải remove shape cũ và add shape mới
+            if (e.getCode() == KeyCode.U) {
+                gameView.removeNode(player.getCurrentShape());
+                player.switchForm(FormType.CIRCLE);
+                gameView.addNode(player.getCurrentShape());
+            }
             if (e.getCode() == KeyCode.I) {
+                gameView.removeNode(player.getCurrentShape());
                 player.switchForm(FormType.TRIANGLE);
-                dash.dash();
+                gameView.addNode(player.getCurrentShape());
+                dashController.startDash();
+            }
+            if (e.getCode() == KeyCode.O) {
+                gameView.removeNode(player.getCurrentShape());
+                player.switchForm(FormType.SQUARE);
+                gameView.addNode(player.getCurrentShape());
             }
         });
 
         scene.setOnKeyReleased(e -> {
-            if (e.getCode() == KeyCode.A) left = false;
-            if (e.getCode() == KeyCode.D) right = false;
+            if (e.getCode() == KeyCode.LEFT || e.getCode() == KeyCode.A) {
+                player.stopMovingLeft();
+            }
+            if (e.getCode() == KeyCode.RIGHT || e.getCode() == KeyCode.D) {
+                player.stopMovingRight();
+            }
         });
-    }
-
-    public void update(Player player) {
-        if (left) player.move(-3);
-        if (right) player.move(3);
     }
 }

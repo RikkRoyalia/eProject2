@@ -3,49 +3,59 @@ package SHAIF.model;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 
-public class Player {
-
+public class Player implements Movement {
+    private FormType currentForm;
     private Shape currentShape;
-    private double x = 100, y = 300;
-    private double velY = 0;
-    private boolean onGround = false;
 
-    private final Rectangle square = new Rectangle(30, 30);
-    private final Circle circle = new Circle(15);
-    private final Polygon triangle = new Polygon(
-            0.0, 0.0,
-            0.0, 30.0,
-            30.0, 15.0
-    );
+    private double x;
+    private double y;
+    private double velY;
+    private boolean onGround;
+    private boolean movingLeft;
+    private boolean movingRight;
 
-    private FormType currentForm = FormType.SQUARE;
+    // Constants
+    private final int walkSpeed = 3;
+    private final double gravity = 0.5;
+    private final double jumpForce = -12;
+    private final double groundLevel = 380;
 
-    public Player() {
-        square.setFill(Color.DARKBLUE);
-        circle.setFill(Color.DARKRED);
-        triangle.setFill(Color.DARKGREEN);
-        switchForm(FormType.CIRCLE);
-    }
+    // Shapes
+    private final Rectangle squareForm;
+    private final Circle circleForm;
+    private final Polygon triangleForm;
 
-    public void switchForm(FormType form) {
-        currentForm = form;
-        switch (form) {
-            case SQUARE : {
-                currentShape = square;
-                break;
-            }
-            case CIRCLE : {currentShape = circle; break;}
-            case TRIANGLE : {currentShape = triangle;}
-        }
+    public Player(double startX, double startY) {
+        this.x = startX;
+        this.y = startY;
+        this.velY = 0;
+        this.onGround = false;
+
+        // Tạo các hình dạng
+        squareForm = new Rectangle(30, 30);
+        squareForm.setFill(Color.DARKBLUE);
+
+        circleForm = new Circle(0, 15, 15);
+        circleForm.setFill(Color.DARKRED);
+
+        triangleForm = new Polygon(0.0, 0.0, 0.0, 30.0, 30.0, 15.0);
+        triangleForm.setFill(Color.DARKGREEN);
+
+        // Khởi tạo form ban đầu (chưa thêm vào scene)
+        currentForm = FormType.CIRCLE;
+        currentShape = circleForm;
         updatePosition();
     }
 
+    // ===== Movement Interface Implementation =====
+
+    @Override
     public void applyGravity() {
-        velY += 0.5;
+        velY += gravity;
         y += velY;
 
-        if (y > 380) {
-            y = 380;
+        if (y > groundLevel) {
+            y = groundLevel;
             velY = 0;
             onGround = true;
         } else {
@@ -54,25 +64,126 @@ public class Player {
         updatePosition();
     }
 
-    public void move(double dx) {
-        x += dx;
+    @Override
+    public void update() {
+        // Chỉ di chuyển ngang khi là Circle
+        if (currentForm == FormType.CIRCLE) {
+            if (movingLeft) {
+                x -= walkSpeed;
+            }
+            if (movingRight) {
+                x += walkSpeed;
+            }
+            updatePosition();
+        }
+    }
+
+    @Override
+    public void moveLeft() {
+        movingLeft = true;
+    }
+
+    @Override
+    public void moveRight() {
+        movingRight = true;
+    }
+
+    @Override
+    public void jump() {
+        if (onGround) {
+            velY = jumpForce;
+            onGround = false;
+        }
+    }
+
+    @Override
+    public void stop() {
+        movingLeft = false;
+        movingRight = false;
+    }
+
+    @Override
+    public double getX() {
+        return x;
+    }
+
+    @Override
+    public double getY() {
+        return y;
+    }
+
+    @Override
+    public void setX(double x) {
+        this.x = x;
         updatePosition();
     }
 
-    public void jump() {
-        if (onGround) velY = -12;
+    @Override
+    public void setY(double y) {
+        this.y = y;
+        updatePosition();
+    }
+
+    @Override
+    public boolean isOnGround() {
+        return onGround;
+    }
+
+    // ===== Player specific methods =====
+
+    public void switchForm(FormType form) {
+        currentForm = form;
+
+        switch (form) {
+            case SQUARE:
+                currentShape = squareForm;
+                break;
+            case CIRCLE:
+                currentShape = circleForm;
+                break;
+            case TRIANGLE:
+                currentShape = triangleForm;
+                break;
+        }
+
+        // Cập nhật vị trí cho shape mới
+        updatePosition();
     }
 
     private void updatePosition() {
-        currentShape.setTranslateX(x);
-        currentShape.setTranslateY(y);
+        // Cập nhật TẤT CẢ các shape để đồng bộ vị trí
+        squareForm.setTranslateX(x);
+        squareForm.setTranslateY(y);
+        circleForm.setTranslateX(x);
+        circleForm.setTranslateY(y);
+        triangleForm.setTranslateX(x);
+        triangleForm.setTranslateY(y);
     }
 
-    public Shape getShape() {
-        return currentShape;
+    public void takeDamage() {
+        currentShape.setFill(Color.RED);
     }
 
-    public FormType getCurrentForm() {
-        return currentForm;
+    public void stopMovingLeft() {
+        movingLeft = false;
     }
+
+    public void stopMovingRight() {
+        movingRight = false;
+    }
+
+    public boolean isMovingLeft() {
+        return movingLeft;
+    }
+
+    public boolean isMovingRight() {
+        return movingRight;
+    }
+
+    // Getters
+    public Shape getCurrentShape() { return currentShape; }
+    public FormType getCurrentForm() { return currentForm; }
+    public Rectangle getSquareForm() { return squareForm; }
+    public Circle getCircleForm() { return circleForm; }
+    public Polygon getTriangleForm() { return triangleForm; }
 }
