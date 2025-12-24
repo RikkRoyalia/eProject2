@@ -1,6 +1,5 @@
 package SHAIF.model;
 
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 
@@ -13,7 +12,7 @@ public class Enemy implements InteractiveObjects {
 
     public Enemy(double x, double y) {
         shape = new Rectangle(30, 40);
-        shape.setFill(Color.PURPLE);
+        shape.getStyleClass().add("enemy");
         shape.setX(x);
         shape.setY(y);
         active = true;
@@ -26,14 +25,16 @@ public class Enemy implements InteractiveObjects {
     public void activate() {
         active = true;
         shape.setDisable(false);
-        shape.setFill(Color.PURPLE);
+        shape.getStyleClass().clear();
+        shape.getStyleClass().add("enemy");
     }
 
     @Override
     public void deactivate() {
         active = false;
         shape.setDisable(true);
-        shape.setFill(Color.GRAY);
+        shape.getStyleClass().clear();
+        shape.getStyleClass().add("enemy-defeated");
     }
 
     @Override

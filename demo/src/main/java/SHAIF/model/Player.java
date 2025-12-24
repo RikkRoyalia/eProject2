@@ -1,7 +1,7 @@
 package SHAIF.model;
 
-import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
+import java.util.List;
 
 public class Player implements Movement {
     private FormType currentForm;
@@ -13,19 +13,19 @@ public class Player implements Movement {
     private boolean onGround;
     private boolean movingLeft;
     private boolean movingRight;
-    private boolean isDashing; // Thêm flag để track dash state
+    private boolean isDashing;
 
     // Constants
     private final int walkSpeed = 3;
     private final double gravity = 0.5;
     private final double jumpForce = -10;
-    private final double groundLevel = 380;
+    private double groundLevel;
 
     // Shapes
     private final Rectangle squareForm;
     private final Circle circleForm;
-    private final Polygon triangleForm;      // Tam giác phải
-    private final Polygon leftTriangleForm;  // Tam giác trái
+    private final Polygon triangleForm;
+    private final Polygon leftTriangleForm;
 
     public Player(double startX, double startY) {
         this.x = startX;
@@ -33,23 +33,21 @@ public class Player implements Movement {
         this.velY = 0;
         this.onGround = false;
         this.isDashing = false;
+        this.groundLevel = 380; // Default, sẽ được update từ GameView
 
-        // Tạo các hình dạng
-        squareForm = new Rectangle(-15, 0,30, 30);
-        squareForm.setFill(Color.DARKBLUE);
+        // Tạo các hình dạng với CSS classes
+        squareForm = new Rectangle(-15, 0, 30, 30);
+        squareForm.getStyleClass().add("player-square");
 
         circleForm = new Circle(0, 15, 15);
-        circleForm.setFill(Color.DARKRED);
+        circleForm.getStyleClass().add("player-circle");
 
-        // Tam giác chĩa sang phải
         triangleForm = new Polygon(-15.0, 0.0, -15.0, 30.0, 15.0, 15.0);
-        triangleForm.setFill(Color.DARKGREEN);
+        triangleForm.getStyleClass().add("player-triangle");
 
-        // Tam giác chĩa sang trái (đảo ngược tọa độ x)
         leftTriangleForm = new Polygon(15.0, 0.0, 15.0, 30.0, -15.0, 15.0);
-        leftTriangleForm.setFill(Color.DARKGREEN);
+        leftTriangleForm.getStyleClass().add("player-triangle");
 
-        // Khởi tạo form ban đầu (chưa thêm vào scene)
         currentForm = FormType.CIRCLE;
         currentShape = circleForm;
         updatePosition();
@@ -59,7 +57,6 @@ public class Player implements Movement {
 
     @Override
     public void applyGravity() {
-        // Không áp dụng trọng lực khi đang dash
         if (isDashing) {
             return;
         }
@@ -77,9 +74,40 @@ public class Player implements Movement {
         updatePosition();
     }
 
+    // Method mới để xử lý gravity với platforms
+    public void applyGravityWithPlatforms(List<Platform> platforms, double defaultGroundLevel) {
+        if (isDashing) {
+            return;
+        }
+
+        velY += gravity;
+        y += velY;
+
+        onGround = false;
+
+        // Kiểm tra va chạm với từng platform
+        for (Platform platform : platforms) {
+            // Chỉ check nếu player đang rơi xuống
+            if (velY > 0 && platform.isPlayerOnTop(x, y, 30, 30)) {
+                y = platform.getTop() - 30;
+                velY = 0;
+                onGround = true;
+                break;
+            }
+        }
+
+        // Kiểm tra mặt đất
+        if (y > defaultGroundLevel) {
+            y = defaultGroundLevel;
+            velY = 0;
+            onGround = true;
+        }
+
+        updatePosition();
+    }
+
     @Override
     public void update() {
-        // Chỉ di chuyển ngang khi là Circle
         if (currentForm == FormType.CIRCLE) {
             if (movingLeft) {
                 x -= walkSpeed;
@@ -162,12 +190,10 @@ public class Player implements Movement {
                 break;
         }
 
-        // Cập nhật vị trí cho shape mới
         updatePosition();
     }
 
     private void updatePosition() {
-        // Cập nhật TẤT CẢ các shape để đồng bộ vị trí
         squareForm.setTranslateX(x);
         squareForm.setTranslateY(y);
         circleForm.setTranslateX(x);
@@ -179,7 +205,8 @@ public class Player implements Movement {
     }
 
     public void takeDamage() {
-        currentShape.setFill(Color.RED);
+        currentShape.getStyleClass().clear();
+        currentShape.getStyleClass().add("player-damaged");
     }
 
     public void stopMovingLeft() {
@@ -198,7 +225,6 @@ public class Player implements Movement {
         return movingRight;
     }
 
-    // Dash control methods
     public void setDashing(boolean dashing) {
         this.isDashing = dashing;
     }
@@ -209,6 +235,10 @@ public class Player implements Movement {
 
     public void setVelY(double velY) {
         this.velY = velY;
+    }
+
+    public void setGroundLevel(double groundLevel) {
+        this.groundLevel = groundLevel;
     }
 
     // Getters

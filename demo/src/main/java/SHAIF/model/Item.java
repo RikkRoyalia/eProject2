@@ -1,6 +1,5 @@
 package SHAIF.model;
 
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
 
@@ -11,7 +10,7 @@ public class Item implements InteractiveObjects {
 
     public Item(double x, double y, String itemType) {
         this.shape = new Circle(x, y, 8);
-        this.shape.setFill(Color.GOLD);
+        this.shape.getStyleClass().add("item");
         this.itemType = itemType;
         this.collected = false;
     }

@@ -21,15 +21,16 @@ public class Main extends Application {
         showMenu();
 
         primaryStage.setTitle("Shape Shifter Platformer");
+
+        // Set fullscreen khi chạy game
+        primaryStage.setMaximized(true);
+
         primaryStage.show();
     }
 
     private void showMenu() {
         menuScreen = new MenuScreen(primaryStage);
-
-        // Set callback khi nhấn Play
         menuScreen.setOnPlayCallback(this::startGame);
-
         menuScreen.show();
     }
 
@@ -37,23 +38,30 @@ public class Main extends Application {
         // Khởi tạo View
         GameView gameView = new GameView();
 
-        // Khởi tạo Models (sử dụng interfaces)
-        Player player = new Player(100, 300);  // implements Movement
-        Enemy enemy = new Enemy(600, 300);     // implements InteractiveObjects
-        Bullet bullet = new Bullet();          // implements InteractiveObjects
+        // Khởi tạo Models
+        Player player = new Player(100, 300);
+        player.setGroundLevel(gameView.getGroundLevel()); // Set ground level từ GameView
 
-        // QUAN TRỌNG: Chỉ add shape hiện tại của player vào view
+        Enemy enemy = new Enemy(600, 300);
+        Bullet bullet = new Bullet();
+
+        // Add shapes vào view
         gameView.addNode(player.getCurrentShape());
         gameView.addNode(enemy.getShape());
         gameView.addNode(bullet.getShape());
 
-        // Khởi tạo Controllers (truyền gameView vào DashController)
+        // Khởi tạo Controllers
         DashController dashController = new DashController(player, gameView);
         KeyInput keyInput = new KeyInput(player, dashController, gameView);
         GameLoop gameLoop = new GameLoop(gameView, player, enemy, bullet, dashController);
 
         // Setup Scene
         Scene scene = new Scene(gameView.getRoot());
+
+        // Load CSS cho game scene
+        String css = getClass().getResource("/SHAIF/styles.css").toExternalForm();
+        scene.getStylesheets().add(css);
+
         keyInput.setupInput(scene);
 
         // Bắt đầu game loop

@@ -24,8 +24,8 @@ public class GameLoop {
         new AnimationTimer() {
             @Override
             public void handle(long now) {
-                // Cập nhật player (implements Movement interface)
-                player.applyGravity();
+                // Cập nhật player với platform collision
+                player.applyGravityWithPlatforms(gameView.getPlatforms(), gameView.getGroundLevel());
                 player.update();
 
                 // Cập nhật dash

@@ -1,0 +1,145 @@
+/* ===== MENU SCREEN ===== */
+.menu-root {
+    -fx-background-color: #2C3E50;
+    -fx-alignment: center;
+    -fx-spacing: 20;
+}
+
+.menu-title {
+    -fx-font-family: "Arial";
+    -fx-font-size: 48px;
+    -fx-fill: white;
+}
+
+.menu-subtitle {
+    -fx-font-family: "Arial";
+    -fx-font-size: 20px;
+    -fx-fill: lightgray;
+}
+
+.menu-button {
+    -fx-background-color: #3498DB;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-pref-width: 200px;
+    -fx-pref-height: 50px;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.menu-button:hover {
+    -fx-background-color: #5DADE2;
+    -fx-font-size: 18px;
+}
+
+.exit-button {
+    -fx-background-color: #C0392B;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-pref-width: 200px;
+    -fx-pref-height: 50px;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.exit-button:hover {
+    -fx-background-color: #E74C3C;
+    -fx-font-size: 18px;
+}
+
+/* ===== SETTINGS SCREEN ===== */
+.settings-root {
+    -fx-background-color: #34495E;
+    -fx-alignment: center;
+    -fx-spacing: 15;
+}
+
+.settings-title {
+    -fx-font-family: "Arial";
+    -fx-font-size: 36px;
+    -fx-fill: white;
+}
+
+.settings-label {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+}
+
+.settings-checkbox {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+}
+
+.settings-slider {
+    -fx-pref-width: 300px;
+}
+
+.back-button {
+    -fx-background-color: #95A5A6;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-pref-width: 200px;
+    -fx-pref-height: 40px;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.back-button:hover {
+    -fx-background-color: #BDC3C7;
+}
+
+/* ===== GAME ELEMENTS ===== */
+.player-square {
+    -fx-fill: #1A237E;
+}
+
+.player-circle {
+    -fx-fill: #B71C1C;
+}
+
+.player-triangle {
+    -fx-fill: #1B5E20;
+}
+
+.player-damaged {
+    -fx-fill: red;
+}
+
+.enemy {
+    -fx-fill: purple;
+}
+
+.enemy-defeated {
+    -fx-fill: gray;
+}
+
+.bullet {
+    -fx-fill: black;
+}
+
+.item {
+    -fx-fill: gold;
+}
+
+.platform {
+    -fx-fill: gray;
+}
+
+.obstacle {
+    -fx-fill: darkgray;
+}
+
+.pit {
+    -fx-fill: black;
+}
+
+.goal {
+    -fx-fill: gold;
+}
+
+/* ===== GAME VIEW ===== */
+.game-root {
+    -fx-background-color: #87CEEB;
+}
