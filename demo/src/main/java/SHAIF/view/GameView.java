@@ -13,22 +13,37 @@ public class GameView {
     private final Pane root;
     private Rectangle goal;
     private final List<Platform> platforms;
+
+    private final List<Rectangle> pits;
     private final double screenWidth;
     private final double screenHeight;
     private final double groundLevel;
 
     public GameView() {
-        // Lấy kích thước màn hình
-        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-        screenWidth = screenBounds.getWidth();
-        screenHeight = screenBounds.getHeight();
-        groundLevel = screenHeight - 40;
+//        // Lấy kích thước màn hình
+//        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+//        screenWidth = screenBounds.getWidth();
+//        screenHeight = screenBounds.getHeight();
+//        groundLevel = screenHeight - 150;
+//        root = new Pane();
+//        root.setPrefSize(screenWidth, screenHeight);
+//        root.getStyleClass().add("game-root");
+//
+//        platforms = new ArrayList<>();
+//
+//        setupPlatforms();
+//        setupGoal();
+
+        screenWidth = 1280;
+        screenHeight = 720;
+        groundLevel = 680; // mặt trên của mặt đất
 
         root = new Pane();
         root.setPrefSize(screenWidth, screenHeight);
         root.getStyleClass().add("game-root");
 
         platforms = new ArrayList<>();
+        pits = new ArrayList<>();
 
         setupPlatforms();
         setupGoal();
@@ -76,7 +91,13 @@ public class GameView {
         pit2.setX(600);
         pit2.setY(groundLevel - 250);
         root.getChildren().add(pit2);
+
+        pits.add(pit1);
+        pits.add(pit2);
     }
+
+
+
     private void setupGoal() {
         goal = new Rectangle(15, 100);
         goal.getStyleClass().add("goal");
@@ -99,4 +120,6 @@ public class GameView {
     public double getGroundLevel() { return groundLevel; }
     public double getScreenWidth() { return screenWidth; }
     public double getScreenHeight() { return screenHeight; }
+    public List<Rectangle> getPits() {return pits; }
+
 }

@@ -27,6 +27,10 @@ public class Player implements Movement {
     private final Polygon triangleForm;
     private final Polygon leftTriangleForm;
 
+    private int hitCount = 0;  // số lần trúng đạn
+    private final int maxHits = 2; // trúng 2 lần sẽ game over
+
+
     public Player(double startX, double startY) {
         this.x = startX;
         this.y = startY;
@@ -52,6 +56,28 @@ public class Player implements Movement {
         currentShape = circleForm;
         updatePosition();
     }
+
+    public double getHeight() {
+        switch (currentForm) {
+            case SQUARE: return squareForm.getHeight();
+            case CIRCLE: return circleForm.getRadius() * 2;
+            case TRIANGLE: return 30; // hoặc tính từ bounds
+            case L_TRIANGLE: return 30;
+            default: return 30;
+        }
+    }
+
+    public double getWidth() {
+        switch (currentForm) {
+            case SQUARE: return squareForm.getWidth();
+            case CIRCLE: return circleForm.getRadius() * 2;
+            case TRIANGLE: return 30; // hoặc tính bounds
+            case L_TRIANGLE: return 30;
+            default: return 30;
+        }
+    }
+
+
 
     // ===== Movement Interface Implementation =====
 
@@ -97,14 +123,18 @@ public class Player implements Movement {
         }
 
         // Kiểm tra mặt đất
-        if (y > defaultGroundLevel) {
-            y = defaultGroundLevel;
+        double playerHeight = getHeight();
+        if (y + playerHeight > groundLevel) {
+            y = groundLevel - playerHeight;  // đặt đáy nhân vật trùng ground
             velY = 0;
             onGround = true;
+        } else {
+            onGround = false;
         }
-
         updatePosition();
     }
+
+
 
     @Override
     public void update() {
@@ -205,8 +235,12 @@ public class Player implements Movement {
     }
 
     public void takeDamage() {
+        hitCount++;
         currentShape.getStyleClass().clear();
         currentShape.getStyleClass().add("player-damaged");
+    }
+    public boolean isDead() {
+        return hitCount >= maxHits;
     }
 
     public void stopMovingLeft() {
@@ -248,4 +282,5 @@ public class Player implements Movement {
     public Circle getCircleForm() { return circleForm; }
     public Polygon getTriangleForm() { return triangleForm; }
     public Polygon getLeftTriangleForm() { return leftTriangleForm; }
+
 }

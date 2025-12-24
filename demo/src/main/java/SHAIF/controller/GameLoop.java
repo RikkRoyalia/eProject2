@@ -1,50 +1,56 @@
 package SHAIF.controller;
 
 import SHAIF.model.*;
+import SHAIF.screen.MenuScreen;
 import SHAIF.view.GameView;
 import javafx.animation.AnimationTimer;
+import javafx.stage.Stage;
 
 public class GameLoop {
+
+    private AnimationTimer timer;
+
     private final GameView gameView;
     private final Player player;
     private final Enemy enemy;
     private final Bullet bullet;
     private final DashController dashController;
+    private final Stage primaryStage;
+    private final MenuScreen menuScreen;
 
     public GameLoop(GameView gameView, Player player, Enemy enemy, Bullet bullet,
-                    DashController dashController) {
+                    DashController dashController, Stage primaryStage, MenuScreen menuScreen) {
         this.gameView = gameView;
         this.player = player;
         this.enemy = enemy;
         this.bullet = bullet;
         this.dashController = dashController;
+        this.primaryStage = primaryStage;
+        this.menuScreen = menuScreen;
     }
 
     public void start() {
-        new AnimationTimer() {
+        timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                // Cập nhật player với platform collision
+                // Cập nhật game
                 player.applyGravityWithPlatforms(gameView.getPlatforms(), gameView.getGroundLevel());
                 player.update();
-
-                // Cập nhật dash
                 dashController.update();
 
-                // Enemy bắn đạn
                 if (enemy.shouldShoot(now)) {
                     bullet.shoot(enemy.getX(), enemy.getY() + 20);
                 }
 
-                // Cập nhật các InteractiveObjects
                 enemy.update();
                 bullet.update();
 
-                // Kiểm tra va chạm
                 checkCollisions();
             }
-        }.start();
+        };
+        timer.start();
     }
+
 
     private void checkCollisions() {
         // Player dash vào enemy (dùng interface method)
