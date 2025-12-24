@@ -102,37 +102,35 @@ public class Player implements Movement {
 
     // Method mới để xử lý gravity với platforms
     public void applyGravityWithPlatforms(List<Platform> platforms, double defaultGroundLevel) {
-        if (isDashing) {
-            return;
-        }
+        if (isDashing) return;
 
         velY += gravity;
         y += velY;
 
-        onGround = false;
+        onGround = false; // reset trước khi check
+
+        double playerHeight = getHeight(); // lấy chiều cao đúng của player
 
         // Kiểm tra va chạm với từng platform
         for (Platform platform : platforms) {
-            // Chỉ check nếu player đang rơi xuống
-            if (velY > 0 && platform.isPlayerOnTop(x, y, 30, 30)) {
-                y = platform.getTop() - 30;
+            if (velY > 0 && platform.isPlayerOnTop(x, y, 30, playerHeight)) {
+                y = platform.getTop() - playerHeight;
                 velY = 0;
                 onGround = true;
                 break;
             }
         }
 
-        // Kiểm tra mặt đất
-        double playerHeight = getHeight();
-        if (y + playerHeight > groundLevel) {
-            y = groundLevel - playerHeight;  // đặt đáy nhân vật trùng ground
+        // Kiểm tra mặt đất nếu không đứng trên platform
+        if (!onGround && y + playerHeight > defaultGroundLevel) {
+            y = defaultGroundLevel - playerHeight;
             velY = 0;
             onGround = true;
-        } else {
-            onGround = false;
         }
+
         updatePosition();
     }
+
 
 
 

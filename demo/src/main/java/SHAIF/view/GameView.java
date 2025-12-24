@@ -56,7 +56,7 @@ public class GameView {
         root.getChildren().add(ground);
 
         // Tầng 1: Platforms thấp
-        Platform low1 = new Platform(550,   180, 150, 20);
+        Platform low1 = new Platform(500,   180, 150, 20);
         Platform low2 = new Platform(600,   260, 150, 20);
 
         // Tầng 2: Platforms trung bình
@@ -65,7 +65,7 @@ public class GameView {
 
         // Tầng 3: Platforms cao
         Platform high1 = new Platform(800,   500, 150, 20);
-        Platform high2 = new Platform(750,   580, 150, 20);
+        Platform high2 = new Platform(750,   600, 150, 20);
 
         // Thêm tất cả vào list
         platforms.add(low1);
@@ -80,20 +80,25 @@ public class GameView {
         }
 
         // Thêm obstacles
-        Rectangle pit1 = new Rectangle(80, 200);
-        pit1.getStyleClass().add("pit");
-        pit1.setX(300);
-        pit1.setY(groundLevel - 200);
-        root.getChildren().add(pit1);
+        // Kích thước pit
+        double pitWidth = 80;
+        double pitHeight = 40; // hố sâu 40px
 
-        Rectangle pit2 = new Rectangle(100, 250);
+        Rectangle pit1 = new Rectangle(pitWidth, pitHeight);
+        pit1.getStyleClass().add("pit");
+        pit1.setX(300); // vị trí ngang
+        pit1.setY(groundLevel); // đỉnh pit trùng mặt đất
+        root.getChildren().add(pit1);
+        pits.add(pit1);
+
+        // Pit 2
+        Rectangle pit2 = new Rectangle(100, 50);
         pit2.getStyleClass().add("pit");
         pit2.setX(600);
-        pit2.setY(groundLevel - 250);
+        pit2.setY(groundLevel); // đỉnh pit trùng mặt đất
         root.getChildren().add(pit2);
-
-        pits.add(pit1);
         pits.add(pit2);
+
     }
 
 

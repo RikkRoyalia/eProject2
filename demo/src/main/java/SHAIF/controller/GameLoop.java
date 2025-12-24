@@ -4,6 +4,7 @@ import SHAIF.model.*;
 import SHAIF.screen.MenuScreen;
 import SHAIF.view.GameView;
 import javafx.animation.AnimationTimer;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 public class GameLoop {
@@ -51,6 +52,27 @@ public class GameLoop {
         timer.start();
     }
 
+    private void gameOver() {
+        // Dừng vòng lặp game
+        if (timer != null) timer.stop();
+
+        // Chạy UI thread
+        javafx.application.Platform.runLater(() -> {
+            // Hiển thị thông báo
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                    javafx.scene.control.Alert.AlertType.INFORMATION
+            );
+            alert.setTitle("Game Over");
+            alert.setHeaderText(null);
+            alert.setContentText("Game Over!");
+            alert.showAndWait();
+
+            // Quay về menu
+            menuScreen.show();
+            primaryStage.setScene(menuScreen.getScene());
+        });
+    }
+
 
     private void checkCollisions() {
         // Player dash vào enemy (dùng interface method)
@@ -75,6 +97,28 @@ public class GameLoop {
                 .intersects(gameView.getGoal().getBoundsInParent())) {
             System.out.println("Bạn đã hoàn thành màn!");
             System.exit(0);
+        }
+
+        // Rơi vào pit
+        for (Rectangle pit : gameView.getPits()) {
+            double px = player.getX();
+            double py = player.getY();
+            double ph = player.getHeight();
+
+            if (px >= pit.getX() && px <= pit.getX() + pit.getWidth() &&
+                    py + ph >= pit.getY()) {
+                gameOver();
+                return;
+            }
+        }
+
+// Bị trúng đạn quá số lần
+        if (bullet.intersects(player.getCurrentShape()) && player.getCurrentForm() != FormType.SQUARE) {
+            player.takeDamage();
+            if (player.isDead()) {
+                gameOver();
+                return;
+            }
         }
     }
 }
