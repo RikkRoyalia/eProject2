@@ -1,6 +1,7 @@
 package SHAIF;
 
 import SHAIF.controller.*;
+import SHAIF.database.DatabaseConnection;
 import SHAIF.model.*;
 import SHAIF.screen.MenuScreen;
 import SHAIF.view.GameView;
@@ -10,14 +11,20 @@ import javafx.scene.Scene;
 import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 
+import java.util.List;
+
 public class Main extends Application {
 
     private Stage primaryStage;
     private MenuScreen menuScreen;
+    private int currentMapId = 1; // Default map
 
     @Override
     public void start(Stage stage) {
         this.primaryStage = stage;
+
+        // Test database connection
+        DatabaseConnection.getConnection();
 
         // Hiển thị menu trước
         showMenu();
@@ -44,8 +51,8 @@ public class Main extends Application {
 
 
     private void startGame() {
-        // Khởi tạo View
-        GameView gameView = new GameView();
+        // Khởi tạo View từ database
+        GameView gameView = new GameView(currentMapId); // Load map từ database
 
         Group gameRoot = new Group();
         gameRoot.getChildren().add(gameView.getRoot());
@@ -56,8 +63,21 @@ public class Main extends Application {
 
 
         player.setGroundLevel(gameView.getGroundLevel()); // Set ground level từ GameView
+        // Khởi tạo Player
+        Player player = new Player(750, 300);
+        player.setGroundLevel(gameView.getGroundLevel());
 
-        Enemy enemy = new Enemy(600, 300);
+        // Khởi tạo Enemies từ map data
+        List<EnemyData> enemiesData = gameView.getEnemiesData();
+        Enemy enemy;
+        if (!enemiesData.isEmpty()) {
+            EnemyData firstEnemy = enemiesData.get(0);
+            enemy = new Enemy(firstEnemy.getX(), firstEnemy.getY());
+        } else {
+            // Fallback nếu không có enemy trong database
+            enemy = new Enemy(600, 300);
+        }
+
         Bullet bullet = new Bullet();
 
         // Add shapes vào view
@@ -86,7 +106,7 @@ public class Main extends Application {
         });
 
 
-        // Load CSS cho game scene
+        // Load CSS
         String css = getClass().getResource("/SHAIF/styles.css").toExternalForm();
         scene.getStylesheets().add(css);
 
