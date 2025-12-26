@@ -25,7 +25,10 @@ public class Main extends Application {
         primaryStage.setTitle("Shape Shifter Platformer");
 
         // Set fullscreen khi chạy game
+
+        // Set fullscreen khi chạy game
         primaryStage.setMaximized(true);
+
 
         primaryStage.show();
     }

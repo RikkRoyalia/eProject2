@@ -1,6 +1,7 @@
 package SHAIF.view;
 
 import SHAIF.model.Platform;
+import SHAIF.model.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
@@ -21,7 +22,8 @@ public class GameView {
 
     public GameView() {
 //        // Lấy kích thước màn hình
-//        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+//        // Lấy kích thước màn hình
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
 //        screenWidth = screenBounds.getWidth();
 //        screenHeight = screenBounds.getHeight();
 //        groundLevel = screenHeight - 150;
@@ -68,6 +70,7 @@ public class GameView {
         Platform high2 = new Platform(750,   600, 150, 20);
 
         // Thêm tất cả vào list
+        // Thêm tất cả vào list
         platforms.add(low1);
         platforms.add(low2);
         platforms.add(mid1);
@@ -84,6 +87,7 @@ public class GameView {
         double pitWidth = 80;
         double pitHeight = 40; // hố sâu 40px
 
+        // Thêm obstacles
         Rectangle pit1 = new Rectangle(pitWidth, pitHeight);
         pit1.getStyleClass().add("pit");
         pit1.setX(300); // vị trí ngang
@@ -100,7 +104,6 @@ public class GameView {
         pits.add(pit2);
 
     }
-
 
 
     private void setupGoal() {
