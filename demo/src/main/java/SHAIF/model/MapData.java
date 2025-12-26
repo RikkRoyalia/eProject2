@@ -8,7 +8,6 @@ public class MapData {
     private String mapName;
     private double screenWidth;
     private double screenHeight;
-    private double groundLevel;
     private double goalX;
     private double goalY;
     private double goalWidth;
@@ -36,9 +35,6 @@ public class MapData {
 
     public double getScreenHeight() { return screenHeight; }
     public void setScreenHeight(double screenHeight) { this.screenHeight = screenHeight; }
-
-    public double getGroundLevel() { return groundLevel; }
-    public void setGroundLevel(double groundLevel) { this.groundLevel = groundLevel; }
 
     public double getGoalX() { return goalX; }
     public void setGoalX(double goalX) { this.goalX = goalX; }
@@ -72,5 +68,15 @@ public class MapData {
     public void addEnemy(EnemyData enemy) {
         enemies.add(enemy);
     }
-}
 
+    // Method mới: lấy ground level từ platform có is_ground = true
+    public double getGroundLevel() {
+        for (PlatformData platform : platforms) {
+            if (platform.isGround()) {
+                return platform.getY();
+            }
+        }
+        // Fallback nếu không tìm thấy ground platform
+        return screenHeight - 40;
+    }
+}

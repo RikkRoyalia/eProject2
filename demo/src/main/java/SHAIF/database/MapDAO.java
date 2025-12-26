@@ -15,7 +15,7 @@ public class MapDAO {
         Connection conn = DatabaseConnection.getConnection();
 
         try {
-            // Load map info
+            // Load map info (không có ground_level nữa)
             String mapQuery = "SELECT * FROM maps WHERE map_id = ?";
             PreparedStatement mapStmt = conn.prepareStatement(mapQuery);
             mapStmt.setInt(1, mapId);
@@ -26,7 +26,6 @@ public class MapDAO {
                 mapData.setMapName(mapRs.getString("map_name"));
                 mapData.setScreenWidth(mapRs.getDouble("screen_width"));
                 mapData.setScreenHeight(mapRs.getDouble("screen_height"));
-                mapData.setGroundLevel(mapRs.getDouble("ground_level"));
                 mapData.setGoalX(mapRs.getDouble("goal_x"));
                 mapData.setGoalY(mapRs.getDouble("goal_y"));
                 mapData.setGoalWidth(mapRs.getDouble("goal_width"));
@@ -35,7 +34,7 @@ public class MapDAO {
             mapRs.close();
             mapStmt.close();
 
-            // Load platforms
+            // Load platforms (bao gồm cả ground platform)
             String platformQuery = "SELECT * FROM platforms WHERE map_id = ?";
             PreparedStatement platformStmt = conn.prepareStatement(platformQuery);
             platformStmt.setInt(1, mapId);
@@ -47,7 +46,8 @@ public class MapDAO {
                         platformRs.getDouble("y"),
                         platformRs.getDouble("width"),
                         platformRs.getDouble("height"),
-                        platformRs.getString("platform_type")
+                        platformRs.getString("platform_type"),
+                        platformRs.getBoolean("is_ground")
                 );
                 mapData.addPlatform(platform);
             }
@@ -137,20 +137,19 @@ public class MapDAO {
      * Tạo map mới trong database
      */
     public static int createMap(String mapName, double screenWidth, double screenHeight,
-                                double groundLevel, double goalX, double goalY) {
+                                double goalX, double goalY) {
         Connection conn = DatabaseConnection.getConnection();
         int mapId = -1;
 
         try {
             String query = "INSERT INTO maps (map_name, screen_width, screen_height, " +
-                    "ground_level, goal_x, goal_y) VALUES (?, ?, ?, ?, ?, ?)";
+                    "goal_x, goal_y) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, mapName);
             stmt.setDouble(2, screenWidth);
             stmt.setDouble(3, screenHeight);
-            stmt.setDouble(4, groundLevel);
-            stmt.setDouble(5, goalX);
-            stmt.setDouble(6, goalY);
+            stmt.setDouble(4, goalX);
+            stmt.setDouble(5, goalY);
 
             int affectedRows = stmt.executeUpdate();
 
@@ -177,12 +176,12 @@ public class MapDAO {
      * Thêm platform vào map
      */
     public static boolean addPlatform(int mapId, double x, double y,
-                                      double width, double height, String type) {
+                                      double width, double height, String type, boolean isGround) {
         Connection conn = DatabaseConnection.getConnection();
 
         try {
-            String query = "INSERT INTO platforms (map_id, x, y, width, height, platform_type) " +
-                    "VALUES (?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO platforms (map_id, x, y, width, height, platform_type, is_ground) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setInt(1, mapId);
             stmt.setDouble(2, x);
@@ -190,6 +189,7 @@ public class MapDAO {
             stmt.setDouble(4, width);
             stmt.setDouble(5, height);
             stmt.setString(6, type);
+            stmt.setBoolean(7, isGround);
 
             int affected = stmt.executeUpdate();
             stmt.close();

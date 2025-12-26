@@ -3,7 +3,6 @@ package SHAIF.view;
 import SHAIF.database.MapDAO;
 import SHAIF.model.*;
 import SHAIF.model.Platform;
-import SHAIF.model.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
@@ -16,33 +15,18 @@ public class GameView {
     private final Pane root;
     private Rectangle goal;
     private final List<Platform> platforms;
-    private List<Rectangle> obstacles;
+    private final List<Rectangle> obstacles;
+    private final List<Rectangle> pits;
     private double screenWidth;
     private double screenHeight;
     private double groundLevel;
     private MapData currentMapData;
-    private List<Rectangle> pits;
 
     // Constructor mặc định - không load từ DB
     public GameView() {
-//        // Lấy kích thước màn hình
-//        // Lấy kích thước màn hình
-        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-//        screenWidth = screenBounds.getWidth();
-//        screenHeight = screenBounds.getHeight();
-//        groundLevel = screenHeight - 150;
-//        root = new Pane();
-//        root.setPrefSize(screenWidth, screenHeight);
-//        root.getStyleClass().add("game-root");
-//
-//        platforms = new ArrayList<>();
-//
-//        setupPlatforms();
-//        setupGoal();
-
         screenWidth = 1280;
         screenHeight = 720;
-        groundLevel = 680; // mặt trên của mặt đất
+        groundLevel = 680;
 
         root = new Pane();
         root.setPrefSize(screenWidth, screenHeight);
@@ -50,6 +34,7 @@ public class GameView {
 
         platforms = new ArrayList<>();
         pits = new ArrayList<>();
+        obstacles = new ArrayList<>();
 
         setupPlatforms();
         setupGoal();
@@ -62,6 +47,7 @@ public class GameView {
 
         platforms = new ArrayList<>();
         obstacles = new ArrayList<>();
+        pits = new ArrayList<>();
 
         // Load map data từ database
         loadMapFromDatabase(mapId);
@@ -91,13 +77,7 @@ public class GameView {
 
         root.setPrefSize(screenWidth, screenHeight);
 
-        // Setup ground
-        Rectangle ground = new Rectangle(screenWidth, screenHeight - groundLevel);
-        ground.getStyleClass().add("platform");
-        ground.setY(groundLevel);
-        root.getChildren().add(ground);
-
-        // Load platforms từ database
+        // Load platforms từ database (bao gồm cả ground)
         for (PlatformData pData : currentMapData.getPlatforms()) {
             Platform platform = new Platform(
                     pData.getX(),
@@ -105,6 +85,13 @@ public class GameView {
                     pData.getWidth(),
                     pData.getHeight()
             );
+
+            // Nếu là ground platform, thêm style class đặc biệt
+            if (pData.isGround()) {
+                platform.getShape().getStyleClass().clear();
+                platform.getShape().getStyleClass().add("platform");
+            }
+
             platforms.add(platform);
             root.getChildren().add(platform.getShape());
         }
@@ -117,6 +104,7 @@ public class GameView {
             switch (oData.getObstacleType()) {
                 case "pit":
                     obstacle.getStyleClass().add("pit");
+                    pits.add(obstacle);
                     break;
                 case "spike":
                     obstacle.getStyleClass().add("spike");
@@ -145,6 +133,7 @@ public class GameView {
         root.getChildren().add(goal);
 
         System.out.println("Map '" + currentMapData.getMapName() + "' loaded into GameView!");
+        System.out.println("Ground level: " + groundLevel);
     }
 
     /**
@@ -165,19 +154,17 @@ public class GameView {
         root.getChildren().add(ground);
 
         // Tầng 1: Platforms thấp
-        Platform low1 = new Platform(500,   180, 150, 20);
-        Platform low2 = new Platform(600,   260, 150, 20);
+        Platform low1 = new Platform(500, 180, 150, 20);
+        Platform low2 = new Platform(600, 260, 150, 20);
 
         // Tầng 2: Platforms trung bình
-        Platform mid1 = new Platform(550,   340, 150, 20);
-        Platform mid2 = new Platform(600,   420, 150, 20);
+        Platform mid1 = new Platform(550, 340, 150, 20);
+        Platform mid2 = new Platform(600, 420, 150, 20);
 
         // Tầng 3: Platforms cao
-        Platform high1 = new Platform(800,   500, 150, 20);
-        Platform high2 = new Platform(750,   600, 150, 20);
+        Platform high1 = new Platform(800, 500, 150, 20);
+        Platform high2 = new Platform(750, 600, 150, 20);
 
-        // Thêm tất cả vào list
-        // Thêm tất cả vào list
         platforms.add(low1);
         platforms.add(low2);
         platforms.add(mid1);
@@ -190,28 +177,23 @@ public class GameView {
         }
 
         // Thêm obstacles
-        // Kích thước pit
         double pitWidth = 80;
-        double pitHeight = 40; // hố sâu 40px
+        double pitHeight = 40;
 
-        // Thêm obstacles
         Rectangle pit1 = new Rectangle(pitWidth, pitHeight);
         pit1.getStyleClass().add("pit");
-        pit1.setX(300); // vị trí ngang
-        pit1.setY(groundLevel); // đỉnh pit trùng mặt đất
+        pit1.setX(300);
+        pit1.setY(groundLevel);
         root.getChildren().add(pit1);
         pits.add(pit1);
 
-        // Pit 2
         Rectangle pit2 = new Rectangle(100, 50);
         pit2.getStyleClass().add("pit");
         pit2.setX(600);
-        pit2.setY(groundLevel); // đỉnh pit trùng mặt đất
+        pit2.setY(groundLevel);
         root.getChildren().add(pit2);
         pits.add(pit2);
-
     }
-
 
     private void setupGoal() {
         goal = new Rectangle(15, 100);
@@ -237,6 +219,5 @@ public class GameView {
     public double getScreenWidth() { return screenWidth; }
     public double getScreenHeight() { return screenHeight; }
     public MapData getCurrentMapData() { return currentMapData; }
-    public List<Rectangle> getPits() {return pits; }
-
+    public List<Rectangle> getPits() { return pits; }
 }
