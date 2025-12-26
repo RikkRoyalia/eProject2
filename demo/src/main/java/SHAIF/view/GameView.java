@@ -16,11 +16,12 @@ public class GameView {
     private final Pane root;
     private Rectangle goal;
     private final List<Platform> platforms;
-    private final List<Rectangle> obstacles;
+    private List<Rectangle> obstacles;
     private double screenWidth;
     private double screenHeight;
     private double groundLevel;
     private MapData currentMapData;
+    private List<Rectangle> pits;
 
     // Constructor mặc định - không load từ DB
     public GameView() {

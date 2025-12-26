@@ -62,11 +62,6 @@ public class Main extends Application {
         player.setGroundLevel(gameView.getGroundLevel());
 
 
-        player.setGroundLevel(gameView.getGroundLevel()); // Set ground level từ GameView
-        // Khởi tạo Player
-        Player player = new Player(750, 300);
-        player.setGroundLevel(gameView.getGroundLevel());
-
         // Khởi tạo Enemies từ map data
         List<EnemyData> enemiesData = gameView.getEnemiesData();
         Enemy enemy;
