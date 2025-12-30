@@ -111,6 +111,26 @@
     -fx-fill: purple;
 }
 
+.enemy-shooter {
+    -fx-fill: purple;
+}
+
+.enemy-patroller {
+    -fx-fill: #8B4513;
+}
+
+.enemy-jumper {
+    -fx-fill: #FF4500;
+}
+
+.enemy-chaser {
+    -fx-fill: #DC143C;
+}
+
+.enemy-boss {
+    -fx-fill: #8B0000;
+}
+
 .enemy-defeated {
     -fx-fill: gray;
 }
@@ -121,6 +141,30 @@
 
 .item {
     -fx-fill: gold;
+}
+
+.item-health {
+    -fx-fill: #E91E63;
+}
+
+.item-coin {
+    -fx-fill: #FFD700;
+}
+
+.item-dash {
+    -fx-fill: #FF6B00;
+}
+
+.item-shield {
+    -fx-fill: #2196F3;
+}
+
+.item-speed {
+    -fx-fill: #4CAF50;
+}
+
+.item-jump {
+    -fx-fill: #9C27B0;
 }
 
 .platform {

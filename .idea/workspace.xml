@@ -6,11 +6,15 @@
   <component name="ChangeListManager">
     <list default="true" id="87196eab-fd20-427a-9a97-a5fc74d78834" name="Changes" comment="thêm database">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/database/MapDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/database/MapDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/database/script.sql" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/database/script.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/MapData.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/MapData.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/PlatformData.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/PlatformData.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/GameLoop.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/GameLoop.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/KeyInput.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/KeyInput.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/Enemy.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/Enemy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/Item.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/Item.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/Player.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/screen/MenuScreen.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/screen/MenuScreen.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/view/GameView.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/view/GameView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/resources/SHAIF/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/resources/SHAIF/styles.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -115,7 +119,11 @@
       <workItem from="1766575099106" duration="2287000" />
       <workItem from="1766578686146" duration="6433000" />
       <workItem from="1766707431024" duration="1312000" />
-      <workItem from="1766755621091" duration="2064000" />
+      <workItem from="1766755621091" duration="2497000" />
+      <workItem from="1766758279884" duration="462000" />
+      <workItem from="1766927892450" duration="6516000" />
+      <workItem from="1767012509650" duration="3169000" />
+      <workItem from="1767065529310" duration="3657000" />
     </task>
     <task id="LOCAL-00001" summary="break into more class">
       <option name="closed" value="true" />

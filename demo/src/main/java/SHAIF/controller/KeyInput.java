@@ -2,6 +2,7 @@ package SHAIF.controller;
 
 import SHAIF.model.Player;
 import SHAIF.model.FormType;
+import SHAIF.screen.PauseScreen;
 import SHAIF.view.GameView;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
@@ -10,11 +11,26 @@ public class KeyInput {
     private final Player player;
     private final DashController dashController;
     private final GameView gameView;
+    private PauseScreen pauseScreen;
+    private Runnable onPauseCallback;
+    private ComboSystem comboSystem;
 
     public KeyInput(Player player, DashController dashController, GameView gameView) {
         this.player = player;
         this.dashController = dashController;
         this.gameView = gameView;
+    }
+
+    public void setPauseScreen(PauseScreen pauseScreen) {
+        this.pauseScreen = pauseScreen;
+    }
+
+    public void setOnPauseCallback(Runnable callback) {
+        this.onPauseCallback = callback;
+    }
+
+    public void setComboSystem(ComboSystem comboSystem) {
+        this.comboSystem = comboSystem;
     }
 
     public void setupInput(Scene scene) {
@@ -48,6 +64,13 @@ public class KeyInput {
             if (e.getCode() == KeyCode.O) {
                 switchToShape(FormType.SQUARE);
             }
+
+            // ESC hoặc P - Pause
+            if (e.getCode() == KeyCode.ESCAPE || e.getCode() == KeyCode.P) {
+                if (onPauseCallback != null) {
+                    onPauseCallback.run();
+                }
+            }
         });
 
         scene.setOnKeyReleased(e -> {
@@ -70,5 +93,10 @@ public class KeyInput {
         gameView.removeNode(player.getCurrentShape());
         player.switchForm(formType);
         gameView.addNode(player.getCurrentShape());
+
+        // Record shape change for combo system
+        if (comboSystem != null) {
+            comboSystem.recordShapeChange(formType);
+        }
     }
 }
