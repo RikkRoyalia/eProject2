@@ -22,6 +22,8 @@ public class Item implements InteractiveObjects {
 
         // Tạo animation xoay
         setupAnimation();
+
+        System.out.println("Item created: " + itemType + " at (" + x + ", " + y + ")");
     }
 
     private void setupItemStyle() {
@@ -66,6 +68,7 @@ public class Item implements InteractiveObjects {
         if (rotateAnimation != null) {
             rotateAnimation.play();
         }
+        System.out.println("Item activated: " + itemType);
     }
 
     @Override
@@ -75,6 +78,7 @@ public class Item implements InteractiveObjects {
         if (rotateAnimation != null) {
             rotateAnimation.stop();
         }
+        System.out.println("Item deactivated: " + itemType);
     }
 
     @Override

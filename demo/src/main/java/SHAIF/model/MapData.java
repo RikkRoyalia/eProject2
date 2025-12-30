@@ -16,11 +16,13 @@ public class MapData {
     private List<PlatformData> platforms;
     private List<ObstacleData> obstacles;
     private List<EnemyData> enemies;
+    private List<ItemData> items; // THÊM MỚI
 
     public MapData() {
         platforms = new ArrayList<>();
         obstacles = new ArrayList<>();
         enemies = new ArrayList<>();
+        items = new ArrayList<>(); // THÊM MỚI
     }
 
     // Getters and Setters
@@ -57,6 +59,9 @@ public class MapData {
     public List<EnemyData> getEnemies() { return enemies; }
     public void setEnemies(List<EnemyData> enemies) { this.enemies = enemies; }
 
+    public List<ItemData> getItems() { return items; } // THÊM MỚI
+    public void setItems(List<ItemData> items) { this.items = items; } // THÊM MỚI
+
     public void addPlatform(PlatformData platform) {
         platforms.add(platform);
     }
@@ -69,7 +74,13 @@ public class MapData {
         enemies.add(enemy);
     }
 
-    // Method mới: lấy ground level từ platform có is_ground = true
+    public void addItem(ItemData item) { // THÊM MỚI
+        items.add(item);
+    }
+
+    /**
+     * Lấy ground level từ platform có is_ground = true
+     */
     public double getGroundLevel() {
         for (PlatformData platform : platforms) {
             if (platform.isGround()) {

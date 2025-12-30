@@ -92,23 +92,67 @@
 
 /* ===== GAME ELEMENTS ===== */
 .player-square {
-    -fx-fill: #1A237E;
+    -fx-fill:
+        /* vạch giữa ngang */
+            linear-gradient(to right, transparent 40%, #00FFF0 40%, #00FFF0 60%, transparent 60%),
+                /* vạch giữa dọc */
+            linear-gradient(to bottom, transparent 40%, #00FFF0 40%, #00FFF0 60%, transparent 60%),
+
+                /* 4 góc */
+            linear-gradient(to right, #00FFF0 0%, #00FFF0 20%, transparent 20%),
+            linear-gradient(to left,  #00FFF0 0%, #00FFF0 20%, transparent 20%),
+            linear-gradient(to bottom,#00FFF0 0%, #00FFF0 20%, transparent 20%),
+            linear-gradient(to top,   #00FFF0 0%, #00FFF0 20%, transparent 20%),
+
+                /* nền */
+            #6F8FB8;
+
+    -fx-fill-size:
+            100% 10%,   /* ngang */
+            10% 100%,   /* dọc */
+            20% 10%,
+            20% 10%,
+            10% 20%,
+            10% 20%,
+            auto;
+
+    -fx-fill-position:
+            center center,
+            center center,
+            top left,
+            top right,
+            bottom left,
+            bottom right,
+            center;
+
 }
 
 .player-circle {
-    -fx-fill: #B71C1C;
+    -fx-fill: radial-gradient(
+            center 30% 30%,
+            radius 60%,
+            #FFFFFF 0%,
+            #FFD6D6 20%,
+            #FF8080 40%,
+            #FF3030 60%,
+            #FF0000 80%,
+            #990000 100%
+    );
 }
 
 .player-triangle {
-    -fx-fill: #1B5E20;
-}
-
-.player-damaged {
-    -fx-fill: red;
+    -fx-fill: #39FF14;
+    -fx-effect: dropshadow(gaussian, #39FF14, 20, 0.8, 0, 0);
 }
 
 .enemy {
-    -fx-fill: purple;
+    -fx-fill: #9B5CFF;
+    -fx-effect: dropshadow(gaussian, #9B5CFF, 18, 0.7, 0, 0);
+}
+
+
+.player-damaged {
+    -fx-fill: red;
 }
 
 .enemy-shooter {
@@ -136,36 +180,19 @@
 }
 
 .bullet {
-    -fx-fill: black;
+    -fx-fill: #F9FF00;
+    -fx-effect: dropshadow(gaussian, #F9FF00, 12, 0.9, 0, 0);
 }
 
 .item {
-    -fx-fill: gold;
+    -fx-effect: dropshadow(gaussian, white, 15, 0.8, 0, 0);
 }
-
-.item-health {
-    -fx-fill: #E91E63;
-}
-
-.item-coin {
-    -fx-fill: #FFD700;
-}
-
-.item-dash {
-    -fx-fill: #FF6B00;
-}
-
-.item-shield {
-    -fx-fill: #2196F3;
-}
-
-.item-speed {
-    -fx-fill: #4CAF50;
-}
-
-.item-jump {
-    -fx-fill: #9C27B0;
-}
+.item-health {-fx-fill: #E91E63;}
+.item-coin {-fx-fill: #FFD700;}
+.item-dash {-fx-fill: #FF6B00;}
+.item-shield {-fx-fill: #2196F3;}
+.item-speed {-fx-fill: #4CAF50;}
+.item-jump {-fx-fill: #9C27B0;}
 
 .platform {
     -fx-fill: gray;
@@ -185,5 +212,9 @@
 
 /* ===== GAME VIEW ===== */
 .game-root {
-    -fx-background-color: #87CEEB;
+    -fx-background-color: radial-gradient(
+            radius 100%,
+            #0B0F1A,
+            #05070D
+    );
 }

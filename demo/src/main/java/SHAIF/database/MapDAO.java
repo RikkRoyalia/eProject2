@@ -15,7 +15,7 @@ public class MapDAO {
         Connection conn = DatabaseConnection.getConnection();
 
         try {
-            // Load map info (không có ground_level nữa)
+            // Load map info
             String mapQuery = "SELECT * FROM maps WHERE map_id = ?";
             PreparedStatement mapStmt = conn.prepareStatement(mapQuery);
             mapStmt.setInt(1, mapId);
@@ -34,7 +34,7 @@ public class MapDAO {
             mapRs.close();
             mapStmt.close();
 
-            // Load platforms (bao gồm cả ground platform)
+            // Load platforms
             String platformQuery = "SELECT * FROM platforms WHERE map_id = ?";
             PreparedStatement platformStmt = conn.prepareStatement(platformQuery);
             platformStmt.setInt(1, mapId);
@@ -90,10 +90,28 @@ public class MapDAO {
             enemyRs.close();
             enemyStmt.close();
 
+            // Load items (MỚI)
+            String itemQuery = "SELECT * FROM items WHERE map_id = ?";
+            PreparedStatement itemStmt = conn.prepareStatement(itemQuery);
+            itemStmt.setInt(1, mapId);
+            ResultSet itemRs = itemStmt.executeQuery();
+
+            while (itemRs.next()) {
+                ItemData item = new ItemData(
+                        itemRs.getDouble("x"),
+                        itemRs.getDouble("y"),
+                        itemRs.getString("item_type")
+                );
+                mapData.addItem(item);
+            }
+            itemRs.close();
+            itemStmt.close();
+
             System.out.println("Map '" + mapData.getMapName() + "' loaded successfully!");
             System.out.println("- Platforms: " + mapData.getPlatforms().size());
             System.out.println("- Obstacles: " + mapData.getObstacles().size());
             System.out.println("- Enemies: " + mapData.getEnemies().size());
+            System.out.println("- Items: " + mapData.getItems().size());
 
         } catch (SQLException e) {
             System.err.println("Error loading map data!");
@@ -198,6 +216,32 @@ public class MapDAO {
 
         } catch (SQLException e) {
             System.err.println("Error adding platform!");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Thêm item vào map (MỚI)
+     */
+    public static boolean addItem(int mapId, double x, double y, String itemType) {
+        Connection conn = DatabaseConnection.getConnection();
+
+        try {
+            String query = "INSERT INTO items (map_id, x, y, item_type) VALUES (?, ?, ?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, mapId);
+            stmt.setDouble(2, x);
+            stmt.setDouble(3, y);
+            stmt.setString(4, itemType);
+
+            int affected = stmt.executeUpdate();
+            stmt.close();
+
+            return affected > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error adding item!");
             e.printStackTrace();
             return false;
         }

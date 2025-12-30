@@ -4,15 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="87196eab-fd20-427a-9a97-a5fc74d78834" name="Changes" comment="thêm database">
+    <list default="true" id="87196eab-fd20-427a-9a97-a5fc74d78834" name="Changes" comment="merge từ update của Quang">
+      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/ItemData.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/gamedata.properties" beforeDir="false" afterPath="$PROJECT_DIR$/demo/gamedata.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/GameLoop.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/GameLoop.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/KeyInput.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/KeyInput.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/Enemy.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/Enemy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/database/MapDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/database/MapDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/database/TestDatabase.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/database/TestDatabase.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/database/script.sql" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/database/script.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/EnemyData.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/EnemyData.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/Item.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/Item.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/Player.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/screen/MenuScreen.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/screen/MenuScreen.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/MapData.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/MapData.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/view/GameView.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/view/GameView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/demo/src/main/resources/SHAIF/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/resources/SHAIF/styles.css" afterDir="false" />
     </list>
@@ -70,32 +72,37 @@
     <option name="showScratchesAndConsoles" value="false" />
     <option name="showVisibilityIcons" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
-    &quot;Application.ShapeShifterGame.executor&quot;: &quot;Run&quot;,
-    &quot;Application.TestDatabase.executor&quot;: &quot;Run&quot;,
-    &quot;Maven.shape-shifter-game [org.openjfx:javafx-maven-plugin:0.0.8:run].executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Hẻi&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/meo meo/New folder/eProject2&quot;,
-    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Main.executor": "Run",
+    "Application.ShapeShifterGame.executor": "Run",
+    "Application.TestDatabase.executor": "Run",
+    "Maven.shape-shifter-game [org.openjfx:javafx-maven-plugin:0.0.8:run].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "Hẻi",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/meo meo/New folder/eProject2",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.0",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql_aurora"
+    ]
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -123,7 +130,8 @@
       <workItem from="1766758279884" duration="462000" />
       <workItem from="1766927892450" duration="6516000" />
       <workItem from="1767012509650" duration="3169000" />
-      <workItem from="1767065529310" duration="3657000" />
+      <workItem from="1767065529310" duration="4475000" />
+      <workItem from="1767085403642" duration="5528000" />
     </task>
     <task id="LOCAL-00001" summary="break into more class">
       <option name="closed" value="true" />
@@ -181,7 +189,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766584926787</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="merge từ update của Quang">
+      <option name="closed" value="true" />
+      <created>1767069675856</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1767069675856</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -204,6 +220,7 @@
     <MESSAGE value="sửa lại chuyển động cho mượt" />
     <MESSAGE value="chuyển sang file css, thêm va chạm cho platform" />
     <MESSAGE value="thêm database" />
-    <option name="LAST_COMMIT_MESSAGE" value="thêm database" />
+    <MESSAGE value="merge từ update của Quang" />
+    <option name="LAST_COMMIT_MESSAGE" value="merge từ update của Quang" />
   </component>
 </project>

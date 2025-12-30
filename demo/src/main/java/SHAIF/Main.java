@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main extends Application {
@@ -46,8 +47,6 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-
-
     private void showMenu() {
         menuScreen = new MenuScreen(primaryStage);
         menuScreen.setOnPlayCallback(this::startGame);
@@ -62,7 +61,7 @@ public class Main extends Application {
         LevelSelectScreen levelSelect = new LevelSelectScreen(primaryStage);
         levelSelect.setOnBackCallback(this::showMenu);
         levelSelect.setOnLevelSelectedCallback(this::startGame);
-        levelSelect.refresh(); // Refresh để hiển thị levels đã unlock
+        levelSelect.refresh();
         levelSelect.show();
     }
 
@@ -85,42 +84,74 @@ public class Main extends Application {
     }
 
     private void startGame() {
+        System.out.println("=== Starting Game ===");
+
+        // STOP game loop cũ nếu đang chạy
+        if (currentGameLoop != null) {
+            currentGameLoop.stop();
+            currentGameLoop = null;
+        }
+
         // Load game data
         GameData.getInstance().load();
-        // Khởi tạo View từ database
-        GameView gameView = new GameView(currentMapId); // Load map từ database
+
+        // Lấy current level để load map tương ứng
+        int currentLevel = LevelManager.getInstance().getCurrentLevel();
+        currentMapId = currentLevel; // Map ID tương ứng với level
+
+        System.out.println("Loading Level: " + currentLevel + ", Map ID: " + currentMapId);
+
+        // Khởi tạo View từ database (TẠO MỚI HOÀN TOÀN)
+        GameView gameView = new GameView(currentMapId);
 
         Group gameRoot = new Group();
+        gameRoot.getChildren().clear(); // Clear children cũ
         gameRoot.getChildren().add(gameView.getRoot());
 
-        // Khởi tạo Models
+        // Khởi tạo Player
         Player player = new Player(100, 680);
         player.setGroundLevel(gameView.getGroundLevel());
 
-        Enemy enemy;
-        if (LevelManager.getInstance().getCurrentLevel() == 5) {
-            // Boss enemy ở level 5
-            enemy = new Enemy(600, 300, EnemyType.BOSS);
+        // Khởi tạo Enemies từ map data (DATABASE)
+        List<Enemy> enemies = new ArrayList<>();
+        List<EnemyData> enemiesData = gameView.getEnemiesData();
+
+        System.out.println("Loading " + enemiesData.size() + " enemies from database");
+
+        if (!enemiesData.isEmpty()) {
+            for (EnemyData enemyData : enemiesData) {
+                // Convert string type sang EnemyType enum
+                EnemyType type = EnemyType.valueOf(enemyData.getEnemyType());
+
+                Enemy enemy = new Enemy(
+                        enemyData.getX(),
+                        enemyData.getY(),
+                        type
+                );
+                enemy.setTargetPlayer(player);
+                enemies.add(enemy);
+
+                // Add enemy shape vào view
+                gameView.addNode(enemy.getShape());
+
+                System.out.println("Enemy created: " + type + " at (" + enemyData.getX() + ", " + enemyData.getY() + ")");
+            }
         } else {
-            enemy = new Enemy(600, 300);
+            // Fallback nếu không có enemy trong database
+            System.out.println("No enemies in database, creating default enemy");
+            Enemy defaultEnemy = new Enemy(600, 300);
+            defaultEnemy.setTargetPlayer(player);
+            enemies.add(defaultEnemy);
+            gameView.addNode(defaultEnemy.getShape());
         }
-        enemy.setTargetPlayer(player);
-        // Khởi tạo Enemies từ map data
-//        List<EnemyData> enemiesData = gameView.getEnemiesData();
-//        Enemy enemy;
-//        if (!enemiesData.isEmpty()) {
-//            EnemyData firstEnemy = enemiesData.get(0);
-//            enemy = new Enemy(firstEnemy.getX(), firstEnemy.getY());
-//        } else {
-//            // Fallback nếu không có enemy trong database
-//            enemy = new Enemy(600, 300);
-//        }
+
+        // Lấy enemy đầu tiên để truyền vào GameLoop (backward compatibility)
+        Enemy primaryEnemy = enemies.isEmpty() ? null : enemies.get(0);
 
         Bullet bullet = new Bullet();
 
         // Add shapes vào view
         gameView.addNode(player.getCurrentShape());
-        gameView.addNode(enemy.getShape());
         gameView.addNode(bullet.getShape());
 
         // Áp dụng upgrades
@@ -133,13 +164,14 @@ public class Main extends Application {
         // Khởi tạo GameStats và HUD
         GameStats stats = new GameStats();
         GameHUD hud = new GameHUD(stats, player);
-        gameRoot.getChildren().add(hud.getRoot()); // Thêm HUD vào root
+        gameRoot.getChildren().add(hud.getRoot());
 
         // Khởi tạo Combo System
         ComboSystem comboSystem = new ComboSystem();
         keyInput.setComboSystem(comboSystem);
 
-        GameLoop gameLoop = new GameLoop(gameView, player, enemy, bullet, dashController,
+        // Khởi tạo GameLoop với primary enemy
+        GameLoop gameLoop = new GameLoop(gameView, player, primaryEnemy, bullet, dashController,
                 primaryStage, menuScreen, stats, hud, comboSystem);
         currentGameLoop = gameLoop;
 
@@ -147,6 +179,7 @@ public class Main extends Application {
         Scene scene = new Scene(gameRoot, 1280, 720);
 
         Scale scale = new Scale(1, 1);
+        gameRoot.getTransforms().clear(); // Clear transforms cũ
         gameRoot.getTransforms().add(scale);
 
         scene.widthProperty().addListener((obs, oldVal, newVal) -> {
@@ -159,6 +192,7 @@ public class Main extends Application {
 
         // Load CSS
         String css = getClass().getResource("/SHAIF/styles.css").toExternalForm();
+        scene.getStylesheets().clear(); // Clear stylesheets cũ
         scene.getStylesheets().add(css);
 
         keyInput.setupInput(scene);
@@ -173,7 +207,6 @@ public class Main extends Application {
         pauseScreen.setOnRestartCallback(this::startGame);
         pauseScreen.setOnQuitCallback(() -> {
             gameLoop.stop();
-            // Save game data
             GameData.getInstance().save();
             showMenu();
         });
@@ -185,13 +218,14 @@ public class Main extends Application {
             pauseScreen.show();
         });
 
-
         // Bắt đầu game loop
         gameLoop.start();
 
         // Chuyển sang game scene
         primaryStage.setScene(scene);
         gameScene = scene;
+
+        System.out.println("=== Game Started Successfully ===");
     }
 
     private void applyUpgradesToPlayer(Player player) {
