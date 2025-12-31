@@ -101,19 +101,7 @@ INSERT INTO items (map_id, x, y, item_type) VALUES
     (1, 800, 570, 'DASH_BOOST'),
     (1, 550, 330, 'SHIELD'),
     (1, 750, 490, 'SPEED_BOOST'),
-    (1, 600, 250, 'DOUBLE_JUMP');                                                                   (1, 550, 180, 150, 20, 'normal', FALSE),
-
-    (1, 600, 260, 150, 20, 'normal', FALSE),
-    (1, 550, 340, 150, 20, 'normal', FALSE),
-    (1, 600, 420, 150, 20, 'normal', FALSE),
-    (1, 800, 500, 150, 20, 'normal', FALSE),
-    (1, 750, 600, 150, 20, 'normal', FALSE);
-
--- Insert obstacles (pits)
--- Pits phải ở y = 680 (cùng level với ground)
-INSERT INTO obstacles (map_id, x, y, width, height, obstacle_type) VALUES
-    (1, 300, 680, 80, 40, 'pit'),
-    (1, 600, 680, 100, 50, 'pit');
+    (1, 600, 250, 'DOUBLE_JUMP');
 
 -- Insert enemies
 INSERT INTO enemies (map_id, x, y, enemy_type) VALUES
