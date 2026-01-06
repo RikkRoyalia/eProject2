@@ -4,26 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="87196eab-fd20-427a-9a97-a5fc74d78834" name="Changes" comment="chỉnh script, css cho hình vuông">
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/Ability.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/AbilityManager.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/AbilityPickup.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/MetroidvaniaGameLoop.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/MetroidvaniaSaveSystem.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/Minimap.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/SaveData.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/SavePoint.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/database/MetroidvaniaDAO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/Room.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/RoomConnection.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/RoomTransition.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/WorldMap.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/gamedata.properties" beforeDir="false" afterPath="$PROJECT_DIR$/demo/gamedata.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/GameLoop.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/GameLoop.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/database/script.sql" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/database/script.sql" afterDir="false" />
-    </list>
+    <list default="true" id="87196eab-fd20-427a-9a97-a5fc74d78834" name="Changes" comment="chỉnh từ level-based sang metroidvania" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -147,7 +128,7 @@
       <workItem from="1767179593168" duration="5130000" />
       <workItem from="1767586376709" duration="297000" />
       <workItem from="1767618733470" duration="3325000" />
-      <workItem from="1767668292051" duration="311000" />
+      <workItem from="1767668292051" duration="676000" />
     </task>
     <task id="LOCAL-00001" summary="break into more class">
       <option name="closed" value="true" />
@@ -221,7 +202,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767093729360</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="chỉnh từ level-based sang metroidvania">
+      <option name="closed" value="true" />
+      <created>1767668939848</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1767668939848</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -246,7 +235,8 @@
     <MESSAGE value="thêm database" />
     <MESSAGE value="merge từ update của Quang" />
     <MESSAGE value="chỉnh database, css cho hình tròn" />
-    <option name="LAST_COMMIT_MESSAGE" value="chỉnh database, css cho hình tròn" />
+    <MESSAGE value="chỉnh từ level-based sang metroidvania" />
+    <option name="LAST_COMMIT_MESSAGE" value="chỉnh từ level-based sang metroidvania" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
