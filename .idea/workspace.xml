@@ -4,11 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="87196eab-fd20-427a-9a97-a5fc74d78834" name="Changes" comment="chỉnh database, css cho hình tròn">
+    <list default="true" id="87196eab-fd20-427a-9a97-a5fc74d78834" name="Changes" comment="chỉnh script, css cho hình vuông">
+      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/Ability.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/AbilityManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/AbilityPickup.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/MetroidvaniaGameLoop.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/MetroidvaniaSaveSystem.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/Minimap.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/SaveData.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/SavePoint.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/database/MetroidvaniaDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/Room.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/RoomConnection.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/RoomTransition.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/model/WorldMap.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/demo/gamedata.properties" beforeDir="false" afterPath="$PROJECT_DIR$/demo/gamedata.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/GameLoop.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/controller/GameLoop.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/demo/src/main/java/SHAIF/database/script.sql" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/SHAIF/database/script.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/resources/SHAIF/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/resources/SHAIF/styles.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,38 +78,43 @@
     <option name="showScratchesAndConsoles" value="false" />
     <option name="showVisibilityIcons" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.Main.executor": "Run",
-    "Application.ShapeShifterGame.executor": "Run",
-    "Application.TestDatabase.executor": "Run",
-    "Maven.shape-shifter-game [org.openjfx:javafx-maven-plugin:0.0.8:run].executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/meo meo/New folder/eProject2",
-    "list.type.of.created.stylesheet": "CSS",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "configurable.group.language",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;Application.ShapeShifterGame.executor&quot;: &quot;Run&quot;,
+    &quot;Application.TestDatabase.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.shape-shifter-game [org.openjfx:javafx-maven-plugin:0.0.8:run].executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Hẻi&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/meo meo/New folder/eProject2&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.language&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "mysql_aurora"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql_aurora&quot;
     ]
   }
-}]]></component>
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="SHAIF.controller" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -126,6 +145,9 @@
       <workItem from="1767065529310" duration="4475000" />
       <workItem from="1767085403642" duration="5774000" />
       <workItem from="1767179593168" duration="5130000" />
+      <workItem from="1767586376709" duration="297000" />
+      <workItem from="1767618733470" duration="3325000" />
+      <workItem from="1767668292051" duration="311000" />
     </task>
     <task id="LOCAL-00001" summary="break into more class">
       <option name="closed" value="true" />

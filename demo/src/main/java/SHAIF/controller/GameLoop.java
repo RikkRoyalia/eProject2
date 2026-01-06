@@ -12,22 +12,22 @@ import java.util.Iterator;
 
 public class GameLoop {
 
-    private AnimationTimer timer;
+    AnimationTimer timer;
 
     private final GameView gameView;
-    private final Player player;
-    private final Enemy enemy;
-    private final Bullet bullet;
-    private final DashController dashController;
+    protected final Player player;
+    final Enemy enemy;
+    final Bullet bullet;
+    final DashController dashController;
     private final Stage primaryStage;
     private final MenuScreen menuScreen;
-    private final GameStats stats;
-    private final GameHUD hud;
+    final GameStats stats;
+    final GameHUD hud;
     private final ComboSystem comboSystem;
-    private final AchievementManager achievementManager;
-    private final GameData gameData;
+    final AchievementManager achievementManager;
+    final GameData gameData;
     private boolean gameWon = false;
-    private boolean isPaused = false;
+    boolean isPaused = false;
     private boolean perfectRun = true; // Track for perfect run achievement
 
     public GameLoop(GameView gameView, Player player, Enemy enemy, Bullet bullet,
@@ -187,7 +187,7 @@ public class GameLoop {
         });
     }
 
-    private void checkCollisions() {
+    protected void checkCollisions() {
         // Player dash vào enemy (dùng interface method)
         if (dashController.checkCollision(enemy) && enemy.isActive()) {
             enemy.defeat();
@@ -282,7 +282,7 @@ public class GameLoop {
         }
     }
 
-    private void checkAchievements() {
+    void checkAchievements() {
         // Check perfect run
         if (player.getHitCount() > 0) {
             perfectRun = false;
