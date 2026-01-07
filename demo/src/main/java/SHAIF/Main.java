@@ -25,6 +25,8 @@ public class Main extends Application {
     private AbilityManager abilityManager;
     private Pane gameRoot; // Changed from Group to Pane for better control
 
+    private Sound sound = new Sound();
+
     @Override
     public void start(Stage stage) {
         this.primaryStage = stage;
@@ -115,7 +117,7 @@ public class Main extends Application {
 
         // Start at beginning position
         worldMap.transitionToRoom("starting_area", 100, 680);
-
+        sound.playMusic(0);
         startGame();
     }
 
@@ -327,6 +329,7 @@ public class Main extends Application {
 
     private PauseScreen createPauseScreen(MetroidvaniaGameLoop gameLoop, GameStats stats) {
         PauseScreen pauseScreen = new PauseScreen(primaryStage);
+        sound.stopMusic();
 
         pauseScreen.setOnResumeCallback(() -> {
             primaryStage.setScene(gameScene);

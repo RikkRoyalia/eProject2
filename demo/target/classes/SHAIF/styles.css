@@ -1,0 +1,224 @@
+/* ===== MENU SCREEN ===== */
+.menu-root {
+    -fx-background-color: #2C3E50;
+    -fx-alignment: center;
+    -fx-spacing: 20;
+}
+
+.menu-title {
+    -fx-font-family: "Arial";
+    -fx-font-size: 48px;
+    -fx-fill: white;
+}
+
+.menu-subtitle {
+    -fx-font-family: "Arial";
+    -fx-font-size: 20px;
+    -fx-fill: lightgray;
+}
+
+.menu-button {
+    -fx-background-color: #3498DB;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-pref-width: 200px;
+    -fx-pref-height: 50px;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.menu-button:hover {
+    -fx-background-color: #5DADE2;
+    -fx-font-size: 18px;
+}
+
+.exit-button {
+    -fx-background-color: #C0392B;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-pref-width: 200px;
+    -fx-pref-height: 50px;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.exit-button:hover {
+    -fx-background-color: #E74C3C;
+    -fx-font-size: 18px;
+}
+
+/* ===== SETTINGS SCREEN ===== */
+.settings-root {
+    -fx-background-color: #34495E;
+    -fx-alignment: center;
+    -fx-spacing: 15;
+}
+
+.settings-title {
+    -fx-font-family: "Arial";
+    -fx-font-size: 36px;
+    -fx-fill: white;
+}
+
+.settings-label {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+}
+
+.settings-checkbox {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+}
+
+.settings-slider {
+    -fx-pref-width: 300px;
+}
+
+.back-button {
+    -fx-background-color: #95A5A6;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-pref-width: 200px;
+    -fx-pref-height: 40px;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.back-button:hover {
+    -fx-background-color: #BDC3C7;
+}
+
+/* ===== GAME ELEMENTS ===== */
+.player-square {
+    -fx-fill: linear-gradient(
+            to bottom right,
+            #FFFFFF 0%,
+            #9df7fa 20%,
+            #63f3f7 40%,
+            #00F6FF 60%,
+            #007A88 80%,
+            #003840 100%
+    );
+}
+
+.player-circle {
+    -fx-fill: radial-gradient(
+            center 30% 30%,
+            radius 60%,
+            #FFFFFF 0%,
+            #FFD6D6 20%,
+            #FF8080 40%,
+            #FF3030 60%,
+            #FF0000 80%,
+            #990000 100%
+    );
+}
+
+.player-triangle {
+    -fx-fill: linear-gradient(
+    to right,
+    #34fa02 0%,
+    #99ffc9 100%
+    );
+    -fx-effect: dropshadow(gaussian, #34fa02, 35, 0.6, -7, 0);
+}
+
+.enemy {
+    -fx-fill: #9B5CFF;
+    -fx-effect: dropshadow(gaussian, #9B5CFF, 18, 0.7, 0, 0);
+}
+
+
+.player-damaged {
+    /*-fx-fill: red;*/
+    -fx-fill: #FF00FF;
+    -fx-stroke: #AA00AA;
+    -fx-stroke-width: 3;
+}
+
+.enemy-shooter {
+    -fx-fill: purple;
+}
+
+.enemy-patroller {
+    -fx-fill: #8B4513;
+}
+
+.enemy-jumper {
+    -fx-fill: #FF4500;
+}
+
+.enemy-chaser {
+    -fx-fill: #DC143C;
+}
+
+.enemy-boss {
+    -fx-fill: #8B0000;
+}
+
+.enemy-defeated {
+    -fx-fill: gray;
+}
+
+.bullet {
+    -fx-fill: #F9FF00;
+    -fx-effect: dropshadow(gaussian, #F9FF00, 12, 0.9, 0, 0);
+}
+
+.item {
+    -fx-effect: dropshadow(gaussian, white, 15, 0.8, 0, 0);
+}
+.item-health {-fx-fill: #E91E63;}
+.item-coin {-fx-fill: #FFD700;}
+.item-dash {-fx-fill: #FF6B00;}
+.item-shield {-fx-fill: #2196F3;}
+.item-speed {-fx-fill: #4CAF50;}
+.item-jump {-fx-fill: #9C27B0;}
+
+.platform {
+    /*-fx-fill: gray;*/
+    -fx-fill: #8B4513;
+    -fx-stroke: #654321;
+    -fx-stroke-width: 2;
+}
+
+.obstacle {
+    /*-fx-fill: darkgray;*/
+    -fx-fill: #666666;
+    -fx-stroke: #444444;
+    -fx-stroke-width: 2;
+}
+
+.pit {
+    /*-fx-fill: black;*/
+    -fx-fill: #000000;
+    -fx-stroke: #FF0000;
+    -fx-stroke-width: 2;
+}
+
+.spike {
+    -fx-fill: #888888;
+    -fx-stroke: #FF0000;
+    -fx-stroke-width: 2;
+}
+
+.lava {
+    -fx-fill: #FF4500;
+    -fx-stroke: #FF0000;
+    -fx-stroke-width: 2;
+}
+
+.goal {
+    -fx-fill: gold;
+}
+
+/* ===== GAME VIEW ===== */
+.game-root {
+    -fx-background-color: radial-gradient(
+            radius 100%,
+            #0B0F1A,
+            #05070D
+    );
+}
