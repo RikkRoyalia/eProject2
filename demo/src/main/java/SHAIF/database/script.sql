@@ -17,6 +17,7 @@ CREATE TABLE maps (
                       world_y DOUBLE DEFAULT 0,
                       room_id VARCHAR(50) UNIQUE,
                       room_name VARCHAR(100),
+                      required_ability VARCHAR(50) NULL,
                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
