@@ -8,6 +8,7 @@ import SHAIF.view.GameView;
 public class DashController {
     private final Player player;
     private final GameView gameView;
+    private Sound sound;
 
     private boolean isDashing;
     private int dashDistanceLeft;
@@ -22,6 +23,7 @@ public class DashController {
         this.isDashing = false;
         this.dashDistanceLeft = 0;
         this.dashDir = 1;
+        this.sound = new Sound();
     }
 
     public void startDash() {
@@ -31,6 +33,9 @@ public class DashController {
         dashDistanceLeft = dashDistance;
         player.setDashing(true); // Bật flag dash cho player
         player.setVelY(0); // Cancel velocity từ nhảy
+
+        //dash's sound
+        sound.playSE(5);
 
         // Xác định hướng dash dựa vào movement của player
         if (player.isMovingLeft()) {
