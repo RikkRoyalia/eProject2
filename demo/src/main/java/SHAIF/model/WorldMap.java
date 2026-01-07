@@ -1,24 +1,20 @@
 package SHAIF.model;
 
-import java.util.ArrayList;
+import SHAIF.database.MetroidvaniaDAO;
+import SHAIF.database.RoomData;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * WorldMap - Quản lý toàn bộ thế giới game kết nối liền mạch
- * Thay thế hệ thống level riêng biệt
  */
 public class WorldMap {
     private static WorldMap instance;
 
-    // Danh sách các rooms (thay vì levels riêng biệt)
     private Map<String, Room> rooms;
-
-    // Room hiện tại player đang ở
     private String currentRoomId;
-
-    // Vị trí player trong world (tọa độ tuyệt đối)
     private double playerWorldX;
     private double playerWorldY;
 
@@ -35,90 +31,98 @@ public class WorldMap {
     }
 
     private void initializeWorld() {
-        // Tạo các rooms kết nối với nhau
-        // Ví dụ: Starting Area -> Forest -> Cave -> Boss Room
+        System.out.println("\n=== Initializing World Map ===");
 
+        // Load all rooms từ database
+        List<RoomData> roomDataList = MetroidvaniaDAO.loadAllRooms();
+
+        if (roomDataList.isEmpty()) {
+            System.err.println("⚠️  No rooms found in database! Creating default starting area.");
+            createDefaultStartingArea();
+            return;
+        }
+
+        // Create Room objects từ database
+        for (RoomData data : roomDataList) {
+            Room room = new Room(
+                    data.getRoomId(),
+                    data.getRoomName(),
+                    data.getWorldX(),
+                    data.getWorldY(),
+                    data.getScreenWidth(),
+                    data.getScreenHeight()
+            );
+            room.setMapId(data.getMapId());
+            room.setRequiredAbility(data.getRequiredAbility());
+
+            rooms.put(room.getId(), room);
+            System.out.println("  Room loaded: " + room.getName() + " (ID: " + room.getId() + ")");
+        }
+
+        // Load connections cho mỗi room
+        for (Room room : rooms.values()) {
+            List<RoomConnection> connections = MetroidvaniaDAO.loadRoomConnections(room.getMapId());
+            for (RoomConnection conn : connections) {
+                room.getConnections().add(conn);
+                System.out.println("    Connection: " + conn.getDirection() + " -> " + conn.getTargetRoomId());
+            }
+        }
+
+        // Set starting position
+        if (rooms.containsKey("starting_area")) {
+            currentRoomId = "starting_area";
+            playerWorldX = 100;
+            playerWorldY = 680;
+            System.out.println("\n✓ World initialized at: " + currentRoomId);
+        } else {
+            // Fallback: use first room
+            currentRoomId = rooms.keySet().iterator().next();
+            playerWorldX = 100;
+            playerWorldY = 600;
+            System.err.println("⚠️  'starting_area' not found, using: " + currentRoomId);
+        }
+
+        System.out.println("Total rooms: " + rooms.size());
+        System.out.println("================================\n");
+    }
+
+    private void createDefaultStartingArea() {
         Room startingArea = new Room("starting_area", "Starting Area",
-                0, 0, 2000, 1200);
-        startingArea.setMapId(1); // Map ID trong database
-
-        Room forest = new Room("forest", "Dark Forest",
-                2000, 0, 2500, 1200);
-        forest.setMapId(2);
-
-        Room cave = new Room("cave", "Underground Cave",
-                2000, 1200, 2000, 1500);
-        cave.setMapId(3);
-        cave.setRequiredAbility("double_jump"); // Cần double jump để vào
-
-        Room bossRoom = new Room("boss_room", "Boss Chamber",
-                4500, 0, 1500, 1200);
-        bossRoom.setMapId(4);
-        bossRoom.setRequiredAbility("dash_through_walls");
-
-        // Thêm connections giữa các rooms
-        startingArea.addConnection("right", forest, 1980, 600);
-        forest.addConnection("left", startingArea, 20, 600);
-        forest.addConnection("down", cave, 200, 1180);
-        forest.addConnection("right", bossRoom, 2480, 600);
-        cave.addConnection("up", forest, 200, 20);
-        bossRoom.addConnection("left", forest, 20, 600);
+                0, 0, 1280, 720);
+        startingArea.setMapId(1);
 
         rooms.put(startingArea.getId(), startingArea);
-        rooms.put(forest.getId(), forest);
-        rooms.put(cave.getId(), cave);
-        rooms.put(bossRoom.getId(), bossRoom);
-
         currentRoomId = "starting_area";
         playerWorldX = 100;
         playerWorldY = 680;
+
+        System.out.println("✓ Default starting area created");
     }
 
     public Room getCurrentRoom() {
         return rooms.get(currentRoomId);
     }
 
-    public boolean canEnterRoom(String roomId, List<String> playerAbilities) {
-        Room room = rooms.get(roomId);
-        if (room == null) return false;
-
-        String requiredAbility = room.getRequiredAbility();
-        if (requiredAbility == null) return true;
-
-        return playerAbilities.contains(requiredAbility);
-    }
-
     /**
      * Kiểm tra nếu player đi qua cửa để chuyển room
+     * (Legacy method - now handled by RoomTransitionDetector)
      */
     public RoomTransition checkRoomTransition(double playerX, double playerY) {
-        Room current = getCurrentRoom();
-
-        for (RoomConnection conn : current.getConnections()) {
-            if (isNearConnection(playerX, playerY, conn)) {
-                return new RoomTransition(
-                        conn.getTargetRoomId(),
-                        conn.getTargetX(),
-                        conn.getTargetY()
-                );
-            }
-        }
-
+        // This is now handled by RoomTransitionDetector
         return null;
     }
 
-    private boolean isNearConnection(double x, double y, RoomConnection conn) {
-        double distance = Math.sqrt(
-                Math.pow(x - conn.getConnectionX(), 2) +
-                        Math.pow(y - conn.getConnectionY(), 2)
-        );
-        return distance < 50; // Trong vòng 50 pixels
-    }
-
     public void transitionToRoom(String roomId, double x, double y) {
-        currentRoomId = roomId;
-        playerWorldX = x;
-        playerWorldY = y;
+        if (rooms.containsKey(roomId)) {
+            currentRoomId = roomId;
+            playerWorldX = x;
+            playerWorldY = y;
+
+            System.out.println("Transitioned to: " + getCurrentRoom().getName());
+            System.out.println("Position: (" + x + ", " + y + ")");
+        } else {
+            System.err.println("❌ Room not found: " + roomId);
+        }
     }
 
     // Getters
@@ -132,4 +136,3 @@ public class WorldMap {
         this.playerWorldY = y;
     }
 }
-

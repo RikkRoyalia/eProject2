@@ -216,12 +216,12 @@ public class GameLoop {
         }
 
         // Chạm đích
-        if (player.getCurrentShape().getBoundsInParent()
-                .intersects(gameView.getGoal().getBoundsInParent())) {
-            gameWon = true;
-            victory();
-            return;
-        }
+//        if (player.getCurrentShape().getBoundsInParent()
+//                .intersects(gameView.getGoal().getBoundsInParent())) {
+//            gameWon = true;
+//            victory();
+//            return;
+//        }
 
         // Rơi vào pit
         for (Rectangle pit : gameView.getPits()) {

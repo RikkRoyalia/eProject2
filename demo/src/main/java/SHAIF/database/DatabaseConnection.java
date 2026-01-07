@@ -5,9 +5,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
-    private static final String URL = "jdbc:mysql://localhost:3306/shaif_game";
+    private static final String URL = "jdbc:mysql://localhost:3307/shaif_game";
     private static final String USER = "root";
-    private static final String PASSWORD = "saoalouw123"; // Thay đổi password của bạn
+    private static final String PASSWORD = "12345678"; // Thay đổi password của bạn
 
     private static Connection connection = null;
 

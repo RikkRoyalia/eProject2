@@ -14,6 +14,10 @@ public class Player implements Movement {
     private boolean movingLeft;
     private boolean movingRight;
     private boolean isDashing;
+    private double minX = 0;
+    private double maxX = 1280;
+    private double minY = 0;
+    private double maxY = 720;
 
     // Constants
     private final int walkSpeed = 3;
@@ -66,6 +70,34 @@ public class Player implements Movement {
         currentForm = FormType.CIRCLE;
         currentShape = circleForm;
         updatePosition();
+    }
+
+    /**
+     * Set screen bounds để giới hạn player
+     */
+    public void setScreenBounds(double minX, double maxX, double minY, double maxY) {
+        this.minX = minX;
+        this.maxX = maxX;
+        this.minY = minY;
+        this.maxY = maxY;
+    }
+
+    /**
+     * Áp dụng bounds khi update position
+     */
+    private void applyBounds() {
+        // Giới hạn X
+        if (x < minX) {
+            x = minX;
+        }
+        if (x > maxX) {
+            x = maxX;
+        }
+
+        // Giới hạn Y (chỉ trên, không giới hạn dưới vì có gravity)
+        if (y < minY) {
+            y = minY;
+        }
     }
 
     public double getHeight() {
@@ -152,6 +184,8 @@ public class Player implements Movement {
             if (movingRight) {
                 x += currentWalkSpeed;
             }
+            // Áp dụng bounds
+            applyBounds();
             updatePosition();
         }
     }
@@ -223,12 +257,14 @@ public class Player implements Movement {
     @Override
     public void setX(double x) {
         this.x = x;
+        applyBounds();
         updatePosition();
     }
 
     @Override
     public void setY(double y) {
         this.y = y;
+        applyBounds();
         updatePosition();
     }
 
