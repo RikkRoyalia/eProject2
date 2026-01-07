@@ -14,6 +14,7 @@ public class MetroidvaniaDAO {
 
     /**
      * Load room connections từ database
+     * FIXED: Sử dụng 'edge' thay vì 'direction', không có connection_x/y
      */
     public static List<RoomConnection> loadRoomConnections(int mapId) {
         List<RoomConnection> connections = new ArrayList<>();
@@ -26,15 +27,22 @@ public class MetroidvaniaDAO {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
+                // Get target room ID from to_map_id
+                String targetRoomId = getRoomIdFromMapId(rs.getInt("to_map_id"));
+
+                // Database schema: edge, spawn_x, spawn_y (NO connection_x/y)
                 RoomConnection connection = new RoomConnection(
-                        rs.getString("direction"),
-                        String.valueOf(rs.getInt("to_map_id")), // Convert to room_id string
-                        rs.getDouble("connection_x"),
-                        rs.getDouble("connection_y"),
+                        rs.getString("edge"), // LEFT, RIGHT, TOP, BOTTOM
+                        targetRoomId,
+                        0, 0, // connection X,Y không dùng trong edge-based system
                         rs.getDouble("spawn_x"),
                         rs.getDouble("spawn_y")
                 );
                 connections.add(connection);
+
+                System.out.println("    Connection: " + rs.getString("edge") +
+                        " -> room " + targetRoomId +
+                        " (spawn at " + rs.getDouble("spawn_x") + "," + rs.getDouble("spawn_y") + ")");
             }
 
             rs.close();
@@ -50,13 +58,15 @@ public class MetroidvaniaDAO {
 
     /**
      * Load ability pickups cho một room
+     * FIXED: Load từ items table với filter item_type = 'ABILITY'
      */
     public static List<AbilityPickup> loadAbilityPickups(int mapId) {
         List<AbilityPickup> pickups = new ArrayList<>();
         Connection conn = DatabaseConnection.getConnection();
 
         try {
-            String query = "SELECT * FROM ability_pickups WHERE map_id = ?";
+            // Items table có: item_type ENUM('HEALTH','COIN','BUFF','ABILITY')
+            String query = "SELECT * FROM items WHERE map_id = ? AND item_type = 'ABILITY'";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setInt(1, mapId);
             ResultSet rs = stmt.executeQuery();
@@ -171,7 +181,10 @@ public class MetroidvaniaDAO {
                 roomData.setWorldY(rs.getDouble("world_y"));
                 roomData.setScreenWidth(rs.getDouble("screen_width"));
                 roomData.setScreenHeight(rs.getDouble("screen_height"));
-                roomData.setRequiredAbility(rs.getString("required_ability"));
+
+                // Required ability có thể null
+                String reqAbility = rs.getString("required_ability");
+                roomData.setRequiredAbility(reqAbility);
 
                 rooms.add(roomData);
             }
@@ -262,66 +275,3 @@ public class MetroidvaniaDAO {
     }
 }
 
-/**
- * RoomData - Data class for room info
- */
-class RoomData {
-    private int mapId;
-    private String roomId;
-    private String roomName;
-    private double worldX;
-    private double worldY;
-    private double screenWidth;
-    private double screenHeight;
-    private String requiredAbility;
-
-    // Getters and Setters
-    public int getMapId() { return mapId; }
-    public void setMapId(int mapId) { this.mapId = mapId; }
-
-    public String getRoomId() { return roomId; }
-    public void setRoomId(String roomId) { this.roomId = roomId; }
-
-    public String getRoomName() { return roomName; }
-    public void setRoomName(String roomName) { this.roomName = roomName; }
-
-    public double getWorldX() { return worldX; }
-    public void setWorldX(double worldX) { this.worldX = worldX; }
-
-    public double getWorldY() { return worldY; }
-    public void setWorldY(double worldY) { this.worldY = worldY; }
-
-    public double getScreenWidth() { return screenWidth; }
-    public void setScreenWidth(double screenWidth) { this.screenWidth = screenWidth; }
-
-    public double getScreenHeight() { return screenHeight; }
-    public void setScreenHeight(double screenHeight) { this.screenHeight = screenHeight; }
-
-    public String getRequiredAbility() { return requiredAbility; }
-    public void setRequiredAbility(String requiredAbility) {
-        this.requiredAbility = requiredAbility;
-    }
-}
-
-/**
- * PermanentChange - Thay đổi vĩnh viễn trong world
- */
-class PermanentChange {
-    private String changeKey;
-    private String changeType;
-    private double x;
-    private double y;
-
-    public PermanentChange(String changeKey, String changeType, double x, double y) {
-        this.changeKey = changeKey;
-        this.changeType = changeType;
-        this.x = x;
-        this.y = y;
-    }
-
-    // Getters
-    public String getChangeKey() { return changeKey; }
-    public String getChangeType() { return changeType; }
-    public double getX() { return x; }
-    public double getY() { return y; }
-}

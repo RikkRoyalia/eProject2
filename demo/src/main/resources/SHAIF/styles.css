@@ -132,7 +132,10 @@
 
 
 .player-damaged {
-    -fx-fill: red;
+    /*-fx-fill: red;*/
+    -fx-fill: #FF00FF;
+    -fx-stroke: #AA00AA;
+    -fx-stroke-width: 3;
 }
 
 .enemy-shooter {
@@ -175,15 +178,36 @@
 .item-jump {-fx-fill: #9C27B0;}
 
 .platform {
-    -fx-fill: gray;
+    /*-fx-fill: gray;*/
+    -fx-fill: #8B4513;
+    -fx-stroke: #654321;
+    -fx-stroke-width: 2;
 }
 
 .obstacle {
-    -fx-fill: darkgray;
+    /*-fx-fill: darkgray;*/
+    -fx-fill: #666666;
+    -fx-stroke: #444444;
+    -fx-stroke-width: 2;
 }
 
 .pit {
-    -fx-fill: black;
+    /*-fx-fill: black;*/
+    -fx-fill: #000000;
+    -fx-stroke: #FF0000;
+    -fx-stroke-width: 2;
+}
+
+.spike {
+    -fx-fill: #888888;
+    -fx-stroke: #FF0000;
+    -fx-stroke-width: 2;
+}
+
+.lava {
+    -fx-fill: #FF4500;
+    -fx-stroke: #FF0000;
+    -fx-stroke-width: 2;
 }
 
 .goal {

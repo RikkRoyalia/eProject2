@@ -175,6 +175,7 @@ public class Main extends Application {
 
         // STOP game loop cũ nếu đang chạy
         if (currentGameLoop != null) {
+            System.out.println("Stopping previous game loop...");
             currentGameLoop.stop();
             currentGameLoop = null;
         }
@@ -184,16 +185,26 @@ public class Main extends Application {
         currentRoom.setDiscovered(true);
 
         int mapId = currentRoom.getMapId();
-        System.out.println("Loading Room: " + currentRoom.getName() +
-                ", Map ID: " + mapId);
+        System.out.println("\nCurrent Room: " + currentRoom.getName());
+        System.out.println("Map ID: " + mapId);
+        System.out.println("World Position: (" + worldMap.getPlayerWorldX() + ", " + worldMap.getPlayerWorldY() + ")");
 
         // Khởi tạo View từ database
+        System.out.println("\nInitializing GameView...");
         GameView gameView = new GameView(mapId);
+
+        // Kiểm tra GameView đã load thành công chưa
+        if (gameView.getPlatforms().isEmpty()) {
+            System.err.println("⚠️  WARNING: No platforms loaded!");
+        } else {
+            System.out.println("✓ GameView initialized with " + gameView.getPlatforms().size() + " platforms");
+        }
 
         // Use Pane instead of Group for better layering
         gameRoot = new Pane();
         gameRoot.getChildren().clear();
         gameRoot.getChildren().add(gameView.getRoot());
+        System.out.println("✓ Game root created, children count: " + gameRoot.getChildren().size());
 
         // Khởi tạo Player tại vị trí world
         Player player = new Player(
@@ -201,6 +212,18 @@ public class Main extends Application {
                 worldMap.getPlayerWorldY()
         );
         player.setGroundLevel(gameView.getGroundLevel());
+
+        // Set screen bounds để player không đi ra ngoài
+        player.setScreenBounds(
+                10, // minX - có chút margin
+                gameView.getScreenWidth() - 10, // maxX
+                0, // minY
+                gameView.getScreenHeight() // maxY
+        );
+
+        System.out.println("✓ Player created at (" + player.getX() + ", " + player.getY() + ")");
+        System.out.println("  Ground level: " + gameView.getGroundLevel());
+        System.out.println("  Screen bounds: 10 to " + (gameView.getScreenWidth() - 10));
 
         // Khởi tạo Enemies
         List<Enemy> enemies = new ArrayList<>();

@@ -30,6 +30,7 @@ public class MetroidvaniaGameLoop extends GameLoop {
     private final AbilityManager abilityManager;
     private final Stage primaryStage;
     private final GameView gameView;
+    private RoomTransitionDetector transitionDetector;
 
     // Transition state
     private boolean isTransitioning = false;
@@ -64,6 +65,13 @@ public class MetroidvaniaGameLoop extends GameLoop {
 
         setupFadeOverlay();
         loadRoomPickups();
+
+        // Initialize transition detector
+        this.transitionDetector = new RoomTransitionDetector(
+                worldMap,
+                gameView.getScreenWidth(),
+                gameView.getScreenHeight()
+        );
     }
 
     private void setupFadeOverlay() {
@@ -147,7 +155,7 @@ public class MetroidvaniaGameLoop extends GameLoop {
         // Original collision checks
         checkPlayerEnemyCollision();
         checkBulletPlayerCollision();
-        checkGoalCollision();
+//        checkGoalCollision();
         checkPitCollision();
         checkItemCollection();
 
@@ -163,15 +171,12 @@ public class MetroidvaniaGameLoop extends GameLoop {
     }
 
     /**
-     * Kiểm tra room transitions
+     * Kiểm tra room transitions dựa trên player position ở edge
      */
     private void checkRoomTransitions() {
         if (isTransitioning) return;
 
-        RoomTransition transition = worldMap.checkRoomTransition(
-                player.getX(),
-                player.getY()
-        );
+        RoomTransition transition = transitionDetector.checkTransition(player);
 
         if (transition != null) {
             Room targetRoom = worldMap.getRooms().get(transition.getTargetRoomId());
@@ -180,11 +185,20 @@ public class MetroidvaniaGameLoop extends GameLoop {
             if (targetRoom.getRequiredAbility() != null) {
                 if (!abilityManager.hasAbility(targetRoom.getRequiredAbility())) {
                     showAbilityRequiredMessage(targetRoom.getRequiredAbility());
+
+                    // Push player back
+                    if (player.getX() < 50) {
+                        player.setX(50);
+                    } else if (player.getX() > gameView.getScreenWidth() - 50) {
+                        player.setX(gameView.getScreenWidth() - 50);
+                    }
+
                     return;
                 }
             }
 
             // Start transition
+            System.out.println("Transitioning to: " + targetRoom.getName());
             initiateRoomTransition(transition);
         }
     }
@@ -486,14 +500,14 @@ public class MetroidvaniaGameLoop extends GameLoop {
         }
     }
 
-    private void checkGoalCollision() {
-        if (player.getCurrentShape().getBoundsInParent()
-                .intersects(gameView.getGoal().getBoundsInParent())) {
-            // In Metroidvania, goals might be bosses or specific objectives
-            // For now, we can treat it as room completion
-            System.out.println("Objective completed in this room!");
-        }
-    }
+//    private void checkGoalCollision() {
+//        if (player.getCurrentShape().getBoundsInParent()
+//                .intersects(gameView.getGoal().getBoundsInParent())) {
+//            // In Metroidvania, goals might be bosses or specific objectives
+//            // For now, we can treat it as room completion
+//            System.out.println("Objective completed in this room!");
+//        }
+//    }
 
     private void checkPitCollision() {
         for (Rectangle pit : gameView.getPits()) {
