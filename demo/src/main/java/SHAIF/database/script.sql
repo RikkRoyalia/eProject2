@@ -17,6 +17,7 @@ CREATE TABLE maps (
                       world_y DOUBLE DEFAULT 0,
                       room_id VARCHAR(50) UNIQUE,
                       room_name VARCHAR(100),
+                      required_ability VARCHAR(50) NULL,
                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -131,11 +132,17 @@ VALUES
 -- PLATFORMS (STARTING AREA)
 -- ===============================
 INSERT INTO platforms (map_id, x, y, width, height, platform_type) VALUES
-                                                                       (1, 0, 680, 1280, 40, 'GROUND'),
-                                                                       (1, 550, 200, 150, 20, 'STATIC'),
-                                                                       (1, 600, 280, 150, 20, 'STATIC'),
-                                                                       (1, 550, 360, 150, 20, 'STATIC'),
-                                                                       (1, 600, 440, 150, 20, 'STATIC');
+    (1, 0, 680, 1280, 40, 'GROUND'),
+    (1, 550, 200, 150, 20, 'STATIC'),
+    (1, 600, 280, 150, 20, 'STATIC'),
+    (1, 550, 360, 150, 20, 'STATIC'),
+    (1, 600, 440, 150, 20, 'STATIC'),
+
+    (2, 0, 680, 1280, 40, 'GROUND'),
+    (2, 550, 200, 150, 20, 'STATIC'),
+    (2, 600, 280, 150, 20, 'STATIC'),
+    (2, 550, 360, 150, 20, 'STATIC'),
+    (2, 600, 440, 150, 20, 'STATIC');
 
 -- ===============================
 -- HAZARDS
