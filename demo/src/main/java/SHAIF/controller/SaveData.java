@@ -7,6 +7,7 @@ import java.util.*;
  * SaveData - Dữ liệu cần save
  */
 public class SaveData implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     // Player state

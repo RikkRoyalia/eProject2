@@ -4,6 +4,7 @@ import SHAIF.controller.*;
 import SHAIF.database.DatabaseConnection;
 import SHAIF.model.*;
 import SHAIF.screen.*;
+import SHAIF.util.MinimapTestUtil;
 import SHAIF.view.*;
 import javafx.application.Application;
 import javafx.scene.Group;
@@ -409,6 +410,8 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
+        WorldMap.getInstance();
+        MinimapTestUtil.runAllTests();
         launch(args);
     }
 }

@@ -37,7 +37,7 @@ public class WorldMap {
         List<RoomData> roomDataList = MetroidvaniaDAO.loadAllRooms();
 
         if (roomDataList.isEmpty()) {
-            System.err.println("⚠️  No rooms found in database! Creating default starting area.");
+            System.err.println("No rooms found in database! Creating default starting area.");
             createDefaultStartingArea();
             return;
         }
@@ -72,14 +72,14 @@ public class WorldMap {
         if (rooms.containsKey("starting_area")) {
             currentRoomId = "starting_area";
             playerWorldX = 100;
-            playerWorldY = 680;
+            playerWorldY = 600;
             System.out.println("\n✓ World initialized at: " + currentRoomId);
         } else {
             // Fallback: use first room
             currentRoomId = rooms.keySet().iterator().next();
             playerWorldX = 100;
             playerWorldY = 600;
-            System.err.println("⚠️  'starting_area' not found, using: " + currentRoomId);
+            System.err.println("'starting_area' not found, using: " + currentRoomId);
         }
 
         System.out.println("Total rooms: " + rooms.size());
@@ -121,7 +121,7 @@ public class WorldMap {
             System.out.println("Transitioned to: " + getCurrentRoom().getName());
             System.out.println("Position: (" + x + ", " + y + ")");
         } else {
-            System.err.println("❌ Room not found: " + roomId);
+            System.err.println("Room not found: " + roomId);
         }
     }
 

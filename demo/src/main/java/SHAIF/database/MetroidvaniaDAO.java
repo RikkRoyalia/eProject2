@@ -2,6 +2,7 @@ package SHAIF.database;
 
 import SHAIF.controller.AbilityPickup;
 import SHAIF.controller.SavePoint;
+import SHAIF.model.Platform;
 import SHAIF.model.RoomConnection;
 import java.sql.*;
 import java.util.ArrayList;
@@ -21,22 +22,42 @@ public class MetroidvaniaDAO {
         Connection conn = DatabaseConnection.getConnection();
 
         try {
-            String query = "SELECT * FROM room_connections WHERE from_map_id = ?";
+            String query = """
+                SELECT 
+                    rc.edge,
+                    rc.spawn_x,
+                    rc.spawn_y,
+                    rc.required_ability,
+                    target.room_id AS target_room_id,
+                    target.world_x AS target_world_x,
+                    target.world_y AS target_world_y
+                FROM room_connections rc
+                JOIN maps target ON rc.to_map_id = target.map_id
+                WHERE rc.from_map_id = ?
+                """;
+
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setInt(1, mapId);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                // Get target room ID from to_map_id
-                String targetRoomId = getRoomIdFromMapId(rs.getInt("to_map_id"));
+                String edge = rs.getString("edge");
+                double spawnX = rs.getDouble("spawn_x");
+                double spawnY = rs.getDouble("spawn_y");
+                String requiredAbility = rs.getString("required_ability");
+                String targetRoomId = rs.getString("target_room_id");
+                double targetWorldX = rs.getDouble("target_world_x");
+                double targetWorldY = rs.getDouble("target_world_y");
 
-                // Database schema: edge, spawn_x, spawn_y (NO connection_x/y)
+                // Use correct constructor: 7 parameters with ability
                 RoomConnection connection = new RoomConnection(
-                        rs.getString("edge"), // LEFT, RIGHT, TOP, BOTTOM
-                        targetRoomId,
-                        0, 0, // connection X,Y không dùng trong edge-based system
-                        rs.getDouble("spawn_x"),
-                        rs.getDouble("spawn_y")
+                        edge,           // direction (LEFT, RIGHT, TOP, BOTTOM)
+                        targetRoomId,   // target room ID
+                        spawnX,         // spawn X in target room (from database!)
+                        spawnY,         // spawn Y in target room (from database!)
+                        targetWorldX,   // target room's world X
+                        targetWorldY,   // target room's world Y
+                        requiredAbility // ability needed (can be null)
                 );
                 connections.add(connection);
 
@@ -54,6 +75,40 @@ public class MetroidvaniaDAO {
         }
 
         return connections;
+    }
+/**
+   * Load platforms for a specific map
+ */
+    public static List<Platform> loadPlatforms(int mapId) {
+        List<Platform> platforms = new ArrayList<>();
+        String sql = "SELECT x, y, width, height, platform_type FROM platforms WHERE map_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, mapId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                double x = rs.getDouble("x");
+                double y = rs.getDouble("y");
+                double width = rs.getDouble("width");
+                double height = rs.getDouble("height");
+                String type = rs.getString("platform_type");
+
+                Platform platform = new Platform(x, y, width, height);
+                // You might want to add type to Platform class later
+                platforms.add(platform);
+            }
+
+            System.out.println("Loaded " + platforms.size() + " platforms for map " + mapId);
+
+        } catch (SQLException e) {
+            System.err.println("Error loading platforms for map " + mapId);
+            e.printStackTrace();
+        }
+
+        return platforms;
     }
 
     /**

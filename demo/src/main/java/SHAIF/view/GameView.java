@@ -21,6 +21,7 @@ public class GameView {
     private double screenHeight;
     private double groundLevel;
     private MapData currentMapData;
+    private Player player;
 
     /**
      * Constructor - load từ database
@@ -36,6 +37,14 @@ public class GameView {
 
         // Load map data từ database
         loadMapFromDatabase(mapId);
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
+        // Update player ground level immediately
+        if (player != null) {
+            updatePlayerForCurrentMap();
+        }
     }
 
     /**
@@ -182,6 +191,62 @@ public class GameView {
         System.out.println("\n=== Map loaded successfully ===");
         System.out.println("Total objects in scene: " + root.getChildren().size());
         System.out.println("================================\n");
+
+        updatePlayerForCurrentMap();
+    }
+
+    /**
+     * Update player state for current map
+     * This fixes the "floating player" bug!
+     */
+    private void updatePlayerForCurrentMap() {
+        if (player == null) return;
+
+        System.out.println("\nUpdating player for current map...");
+
+        // Update ground level
+        player.setGroundLevel(groundLevel);
+        System.out.println("  Ground level set to: " + groundLevel);
+
+        // Update screen bounds
+        player.setScreenBounds(0, screenWidth, 0, screenHeight);
+        System.out.println("  Screen bounds: 0, " + screenWidth + ", 0, " + screenHeight);
+
+        // Reset velocity
+        player.setVelY(0);
+        System.out.println("  Velocity reset");
+
+        // Stop any movement/dash
+        player.setDashing(false);
+        System.out.println("  Dashing stopped");
+
+        System.out.println("Player updated for map!\n");
+    }
+
+    /**
+     * Reload map (for room transitions)
+     * Call this when changing rooms
+     */
+    public void reloadMap(int mapId) {
+        System.out.println("\nReloading map " + mapId + "...");
+        loadMapFromDatabase(mapId);
+    }
+
+    /**
+     * Transition to new map with spawn position
+     */
+    public void transitionToMap(int mapId, double spawnX, double spawnY) {
+        System.out.println("\nTransitioning to map " + mapId + " at (" + spawnX + ", " + spawnY + ")");
+
+        // Load new map
+        loadMapFromDatabase(mapId);
+
+        // Set player position
+        if (player != null) {
+            player.setX(spawnX);
+            player.setY(spawnY);
+            System.out.println("  Player spawned at: (" + spawnX + ", " + spawnY + ")");
+        }
     }
 
     /**
