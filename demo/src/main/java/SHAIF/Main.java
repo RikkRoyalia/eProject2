@@ -7,7 +7,6 @@ import SHAIF.screen.*;
 import SHAIF.util.MinimapTestUtil;
 import SHAIF.view.*;
 import javafx.application.Application;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.transform.Scale;
@@ -16,6 +15,13 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * FIXED Main.java
+ * Key fixes:
+ * 1. Proper GameView initialization with player reference
+ * 2. Correct screen bounds setup
+ * 3. Fixed startGame() reload logic
+ */
 public class Main extends Application {
 
     private Stage primaryStage;
@@ -24,7 +30,7 @@ public class Main extends Application {
     private MetroidvaniaGameLoop currentGameLoop;
     private WorldMap worldMap;
     private AbilityManager abilityManager;
-    private Pane gameRoot; // Changed from Group to Pane for better control
+    private Pane gameRoot;
 
     private Sound sound = new Sound();
 
@@ -32,10 +38,10 @@ public class Main extends Application {
     public void start(Stage stage) {
         this.primaryStage = stage;
 
-        // Test database connection
+        // Test database
         DatabaseConnection.getConnection();
 
-        // Initialize Metroidvania systems
+        // Initialize systems
         worldMap = WorldMap.getInstance();
         abilityManager = AbilityManager.getInstance();
 
@@ -43,10 +49,8 @@ public class Main extends Application {
         GameData gameData = GameData.getInstance();
         gameData.load();
 
-        // Load coins vào shop
         UpgradeShop.getInstance().setCoins(gameData.getCoins());
 
-        // Hiển thị menu trước
         showMenu();
 
         primaryStage.setTitle("Shape Shifter - Metroidvania");
@@ -60,12 +64,10 @@ public class Main extends Application {
         menuScreen.setOnSettingsCallback(this::showSettings);
         menuScreen.setOnShopCallback(this::showShop);
         menuScreen.setOnAchievementsCallback(this::showAchievements);
-        // Remove level select - it's continuous world now
         menuScreen.show();
     }
 
     private void showNewGameOrContinue() {
-        // Check nếu có save file
         if (MetroidvaniaSaveSystem.hasSaveFile()) {
             javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                     javafx.scene.control.Alert.AlertType.CONFIRMATION
@@ -112,12 +114,10 @@ public class Main extends Application {
     }
 
     private void startNewGame() {
-        // Reset everything
         worldMap = WorldMap.getInstance();
         abilityManager.reset();
 
-        // Start at beginning position
-        worldMap.transitionToRoom("starting_area", 100, 680);
+        worldMap.transitionToRoom("starting_area", 100, 600);
         sound.playMusic(0);
         startGame();
     }
@@ -130,14 +130,12 @@ public class Main extends Application {
             return;
         }
 
-        // Restore world state
         worldMap.transitionToRoom(
                 saveData.getCurrentRoomId(),
                 saveData.getPlayerX(),
                 saveData.getPlayerY()
         );
 
-        // Restore discovered rooms
         for (String roomId : saveData.getDiscoveredRooms()) {
             Room room = worldMap.getRooms().get(roomId);
             if (room != null) {
@@ -145,7 +143,6 @@ public class Main extends Application {
             }
         }
 
-        // Restore abilities
         String abilitiesData = String.join(",", saveData.getUnlockedAbilities());
         abilityManager.deserialize(abilitiesData);
 
@@ -173,62 +170,71 @@ public class Main extends Application {
         achievementsScreen.show();
     }
 
+    /**
+     * FIX: Properly start/restart game
+     */
     private void startGame() {
-        System.out.println("=== Starting Metroidvania Game ===");
+        System.out.println("\n╔════════════════════════════════════════╗");
+        System.out.println("║    STARTING METROIDVANIA GAME         ║");
+        System.out.println("╚════════════════════════════════════════╝");
 
-        // STOP game loop cũ nếu đang chạy
+        // Stop old game loop
         if (currentGameLoop != null) {
-            System.out.println("Stopping previous game loop...");
+            System.out.println("⏹️  Stopping previous game loop...");
             currentGameLoop.stop();
             currentGameLoop = null;
         }
 
-        // Lấy current room
+        // Get current room
         Room currentRoom = worldMap.getCurrentRoom();
         currentRoom.setDiscovered(true);
 
         int mapId = currentRoom.getMapId();
-        System.out.println("\nCurrent Room: " + currentRoom.getName());
-        System.out.println("Map ID: " + mapId);
-        System.out.println("World Position: (" + worldMap.getPlayerWorldX() + ", " + worldMap.getPlayerWorldY() + ")");
+        System.out.println("\n📍 Current Room: " + currentRoom.getName());
+        System.out.println("   Map ID: " + mapId);
+        System.out.println("   World Position: (" + worldMap.getPlayerWorldX() + ", " + worldMap.getPlayerWorldY() + ")");
 
-        // Khởi tạo View từ database
-        System.out.println("\nInitializing GameView...");
+        // Initialize GameView
+        System.out.println("\n🎮 Initializing GameView...");
         GameView gameView = new GameView(mapId);
 
-        // Kiểm tra GameView đã load thành công chưa
         if (gameView.getPlatforms().isEmpty()) {
             System.err.println("⚠️  WARNING: No platforms loaded!");
         } else {
             System.out.println("✓ GameView initialized with " + gameView.getPlatforms().size() + " platforms");
         }
 
-        // Use Pane instead of Group for better layering
+        // Create game root
         gameRoot = new Pane();
         gameRoot.getChildren().clear();
         gameRoot.getChildren().add(gameView.getRoot());
-        System.out.println("✓ Game root created, children count: " + gameRoot.getChildren().size());
+        System.out.println("✓ Game root created");
 
-        // Khởi tạo Player tại vị trí world
+        // Initialize Player
         Player player = new Player(
                 worldMap.getPlayerWorldX(),
                 worldMap.getPlayerWorldY()
         );
+
+        // CRITICAL: Set player reference in GameView BEFORE setting bounds
+        gameView.setPlayer(player);
+
+        // Set ground level
         player.setGroundLevel(gameView.getGroundLevel());
 
-        // Set screen bounds để player không đi ra ngoài
+        // Set screen bounds
         player.setScreenBounds(
-                10, // minX - có chút margin
-                gameView.getScreenWidth() - 10, // maxX
-                0, // minY
-                gameView.getScreenHeight() // maxY
+                10,
+                gameView.getScreenWidth() - 10,
+                0,
+                gameView.getScreenHeight()
         );
 
         System.out.println("✓ Player created at (" + player.getX() + ", " + player.getY() + ")");
         System.out.println("  Ground level: " + gameView.getGroundLevel());
         System.out.println("  Screen bounds: 10 to " + (gameView.getScreenWidth() - 10));
 
-        // Khởi tạo Enemies
+        // Initialize Enemies
         List<Enemy> enemies = new ArrayList<>();
         List<EnemyData> enemiesData = gameView.getEnemiesData();
 
@@ -249,33 +255,33 @@ public class Main extends Application {
         Enemy primaryEnemy = enemies.isEmpty() ? null : enemies.get(0);
         Bullet bullet = new Bullet();
 
-        // Add shapes vào view
+        // Add shapes to view
         gameView.addNode(player.getCurrentShape());
         gameView.addNode(bullet.getShape());
 
-        // Áp dụng upgrades
+        // Apply upgrades
         applyUpgradesToPlayer(player);
 
-        // Khởi tạo Controllers
+        // Initialize Controllers
         DashController dashController = new DashController(player, gameView);
         KeyInput keyInput = new KeyInput(player, dashController, gameView);
 
-        // Khởi tạo GameStats và HUD
+        // Initialize GameStats and HUD
         GameStats stats = new GameStats();
         GameHUD hud = new GameHUD(stats, player);
         gameRoot.getChildren().add(hud.getRoot());
 
-        // Thêm Minimap
+        // Add Minimap
         Minimap minimap = new Minimap(200, 150);
         minimap.getCanvas().setLayoutX(1060);
         minimap.getCanvas().setLayoutY(20);
         gameRoot.getChildren().add(minimap.getCanvas());
 
-        // Khởi tạo Combo System
+        // Initialize Combo System
         ComboSystem comboSystem = new ComboSystem();
         keyInput.setComboSystem(comboSystem);
 
-        // Khởi tạo MetroidvaniaGameLoop
+        // Initialize MetroidvaniaGameLoop
         MetroidvaniaGameLoop gameLoop = new MetroidvaniaGameLoop(
                 gameView, player, primaryEnemy, bullet, dashController,
                 primaryStage, menuScreen, stats, hud, comboSystem,
@@ -305,7 +311,7 @@ public class Main extends Application {
 
         keyInput.setupInput(scene);
 
-        // Setup Pause Screen với Save option
+        // Setup Pause Screen
         PauseScreen pauseScreen = createPauseScreen(gameLoop, stats);
         keyInput.setPauseScreen(pauseScreen);
         keyInput.setOnPauseCallback(() -> {
@@ -314,18 +320,19 @@ public class Main extends Application {
             pauseScreen.show();
         });
 
-        // Bắt đầu game loop
+        // Start game loop
         gameLoop.start();
 
-        // Chuyển sang game scene
+        // Switch to game scene
         primaryStage.setScene(scene);
         gameScene = scene;
 
-        System.out.println("=== Metroidvania Game Started ===");
-        System.out.println("Current Room: " + currentRoom.getName());
-        System.out.println("Player Position: (" + player.getX() + ", " + player.getY() + ")");
-        System.out.println("Abilities Unlocked: " + abilityManager.getUnlockedAbilities().size());
-        System.out.println("Completion: " + abilityManager.getCompletionPercentage() + "%");
+        System.out.println("\n✅ METROIDVANIA GAME STARTED");
+        System.out.println("   Current Room: " + currentRoom.getName());
+        System.out.println("   Player Position: (" + player.getX() + ", " + player.getY() + ")");
+        System.out.println("   Abilities Unlocked: " + abilityManager.getUnlockedAbilities().size());
+        System.out.println("   Completion: " + abilityManager.getCompletionPercentage() + "%");
+        System.out.println("════════════════════════════════════════\n");
     }
 
     private PauseScreen createPauseScreen(MetroidvaniaGameLoop gameLoop, GameStats stats) {
@@ -339,7 +346,6 @@ public class Main extends Application {
         });
 
         pauseScreen.setOnRestartCallback(() -> {
-            // In Metroidvania, restart means respawn at last save
             gameLoop.stop();
             SaveData saveData = MetroidvaniaSaveSystem.loadGame();
             if (saveData != null && saveData.getLastSavePointRoom() != null) {
@@ -363,14 +369,12 @@ public class Main extends Application {
             data.setHealth(gameLoop.getPlayer().getMaxHits() -
                     gameLoop.getPlayer().getHitCount());
 
-            // Save discovered rooms
             for (Room room : worldMap.getRooms().values()) {
                 if (room.isDiscovered()) {
                     data.addDiscoveredRoom(room.getId());
                 }
             }
 
-            // Save abilities
             for (String ability : abilityManager.getUnlockedAbilities()) {
                 data.addUnlockedAbility(ability);
             }
@@ -390,19 +394,16 @@ public class Main extends Application {
     private void applyUpgradesToPlayer(Player player) {
         UpgradeShop shop = UpgradeShop.getInstance();
 
-        // Max Health upgrade
         UpgradeShop.Upgrade maxHealth = shop.getUpgrade("max_health");
         if (maxHealth != null && maxHealth.getLevel() > 0) {
             // TODO: Apply max health multiplier
         }
 
-        // Walk Speed upgrade
         UpgradeShop.Upgrade walkSpeed = shop.getUpgrade("walk_speed");
         if (walkSpeed != null && walkSpeed.getLevel() > 0) {
             // TODO: Apply walk speed multiplier
         }
 
-        // Jump Height upgrade
         UpgradeShop.Upgrade jumpHeight = shop.getUpgrade("jump_height");
         if (jumpHeight != null && jumpHeight.getLevel() > 0) {
             // TODO: Apply jump height multiplier

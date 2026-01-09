@@ -180,7 +180,8 @@ INSERT INTO platforms (map_id, x, y, width, height, platform_type) VALUES
     (3, 820, 620, 200, 20, 'STATIC'),
     (3, 1050, 600, 120, 20, 'STATIC'),
 
-    (4, 0, 680, 1280, 40, 'GROUND'),
+    (4, 0, 680, 600, 40, 'GROUND'),
+    (4, 680, 680, 600, 40, 'GROUND'),
 
     (5, 0, 680, 1280, 40, 'GROUND'),
 

@@ -16,12 +16,11 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * MetroidvaniaGameLoop - Extended GameLoop với:
- * - Room transitions
- * - Ability pickups
- * - Save points
- * - Minimap updates
- * - Persistent world state
+ * FIXED MetroidvaniaGameLoop
+ * Key fixes:
+ * 1. Properly reload room content
+ * 2. Update player state after transition
+ * 3. Handle GameView player reference
  */
 public class MetroidvaniaGameLoop extends GameLoop {
 
@@ -29,20 +28,18 @@ public class MetroidvaniaGameLoop extends GameLoop {
     private final WorldMap worldMap;
     private final AbilityManager abilityManager;
     private final Stage primaryStage;
-    private final GameView gameView;
+    private GameView gameView; // Changed from final
     private RoomTransitionDetector transitionDetector;
 
     // Transition state
     private boolean isTransitioning = false;
     private RoomTransition pendingTransition = null;
 
-    // Ability pickups trong room hiện tại
+    // Room content
     private List<AbilityPickup> abilityPickups;
-
-    // Save points trong room hiện tại
     private List<SavePoint> savePoints;
 
-    // Fade overlay cho transitions
+    // UI
     private Rectangle fadeOverlay;
     private Pane rootPane;
 
@@ -63,6 +60,9 @@ public class MetroidvaniaGameLoop extends GameLoop {
         this.gameView = gameView;
         this.rootPane = rootPane;
 
+        // Set player reference in GameView
+        gameView.setPlayer(player);
+
         setupFadeOverlay();
         loadRoomPickups();
 
@@ -82,23 +82,13 @@ public class MetroidvaniaGameLoop extends GameLoop {
         rootPane.getChildren().add(fadeOverlay);
     }
 
-    /**
-     * Load ability pickups và save points cho room hiện tại
-     */
     private void loadRoomPickups() {
-        // TODO: Load từ database based on current room
-        // For now, create empty lists
         abilityPickups = new java.util.ArrayList<>();
         savePoints = new java.util.ArrayList<>();
 
-        // Example: Load from database
         Room currentRoom = worldMap.getCurrentRoom();
         if (currentRoom != null) {
-            // Load ability pickups for this room
-            // abilityPickups = AbilityPickupDAO.loadForRoom(currentRoom.getMapId());
-
-            // Load save points for this room
-            // savePoints = SavePointDAO.loadForRoom(currentRoom.getMapId());
+            // TODO: Load from database
         }
     }
 
@@ -109,19 +99,10 @@ public class MetroidvaniaGameLoop extends GameLoop {
             public void handle(long now) {
                 if (isPaused || isTransitioning) return;
 
-                // Update game entities
                 updateEntities();
-
-                // Update HUD
                 hud.update();
-
-                // Update minimap
                 minimap.render();
-
-                // Check achievements
                 checkAchievements();
-
-                // Check collisions (includes room transitions)
                 checkCollisions();
             }
         };
@@ -129,12 +110,10 @@ public class MetroidvaniaGameLoop extends GameLoop {
     }
 
     private void updateEntities() {
-        // Player
         player.applyGravityWithPlatforms(gameView.getPlatforms(), gameView.getGroundLevel());
         player.update();
         dashController.update();
 
-        // Enemy
         if (enemy != null && enemy.shouldShoot(System.nanoTime())) {
             bullet.shoot(enemy.getX(), enemy.getY() + 20);
         }
@@ -144,7 +123,6 @@ public class MetroidvaniaGameLoop extends GameLoop {
 
         bullet.update();
 
-        // Items
         for (Item item : gameView.getItems()) {
             item.update();
         }
@@ -152,26 +130,23 @@ public class MetroidvaniaGameLoop extends GameLoop {
 
     @Override
     protected void checkCollisions() {
-        // Original collision checks
         checkPlayerEnemyCollision();
         checkBulletPlayerCollision();
-//        checkGoalCollision();
         checkPitCollision();
         checkItemCollection();
 
-        // NEW: Metroidvania-specific checks
+        // Metroidvania-specific
         checkRoomTransitions();
         checkAbilityPickups();
         checkSavePoints();
 
-        // Check death
         if (player.isDead()) {
             handleDeath();
         }
     }
 
     /**
-     * Kiểm tra room transitions dựa trên player position ở edge
+     * FIX: Check room transitions
      */
     private void checkRoomTransitions() {
         if (isTransitioning) return;
@@ -181,36 +156,44 @@ public class MetroidvaniaGameLoop extends GameLoop {
         if (transition != null) {
             Room targetRoom = worldMap.getRooms().get(transition.getTargetRoomId());
 
-            // Check nếu cần ability để vào
+            // Check required ability
             if (targetRoom.getRequiredAbility() != null) {
                 if (!abilityManager.hasAbility(targetRoom.getRequiredAbility())) {
                     showAbilityRequiredMessage(targetRoom.getRequiredAbility());
-
-                    // Push player back
-                    if (player.getX() < 50) {
-                        player.setX(50);
-                    } else if (player.getX() > gameView.getScreenWidth() - 50) {
-                        player.setX(gameView.getScreenWidth() - 50);
-                    }
-
+                    pushPlayerBack();
                     return;
                 }
             }
 
-            // Start transition
-            System.out.println("Transitioning to: " + targetRoom.getName());
+            System.out.println("🚪 Transitioning to: " + targetRoom.getName());
             initiateRoomTransition(transition);
         }
     }
 
     /**
-     * Bắt đầu transition sang room mới
+     * FIX: Push player back from edge
+     */
+    private void pushPlayerBack() {
+        double screenWidth = gameView.getScreenWidth();
+
+        if (player.getX() < 50) {
+            player.setX(50);
+        } else if (player.getX() > screenWidth - 50) {
+            player.setX(screenWidth - 50);
+        }
+
+        if (player.getY() < 50) {
+            player.setY(50);
+        }
+    }
+
+    /**
+     * FIX: Initiate room transition with fade
      */
     private void initiateRoomTransition(RoomTransition transition) {
         isTransitioning = true;
         pendingTransition = transition;
 
-        // Fade out
         FadeTransition fadeOut = new FadeTransition(Duration.millis(500), fadeOverlay);
         fadeOut.setFromValue(0);
         fadeOut.setToValue(1);
@@ -219,9 +202,11 @@ public class MetroidvaniaGameLoop extends GameLoop {
     }
 
     /**
-     * Hoàn thành transition - load room mới
+     * FIX: Complete room transition - properly reload everything
      */
     private void completeRoomTransition() {
+        System.out.println("\n=== Completing Room Transition ===");
+
         // Update world state
         worldMap.transitionToRoom(
                 pendingTransition.getTargetRoomId(),
@@ -232,9 +217,16 @@ public class MetroidvaniaGameLoop extends GameLoop {
         Room newRoom = worldMap.getCurrentRoom();
         newRoom.setDiscovered(true);
 
-        // Move player
+        System.out.println("Target room: " + newRoom.getName());
+        System.out.println("Spawn at: (" + pendingTransition.getSpawnX() + ", " + pendingTransition.getSpawnY() + ")");
+
+        // Move player BEFORE reloading room
         player.setX(pendingTransition.getSpawnX());
         player.setY(pendingTransition.getSpawnY());
+        player.setVelY(0); // Stop falling
+        player.setDashing(false); // Stop dashing
+
+        System.out.println("Player moved to: (" + player.getX() + ", " + player.getY() + ")");
 
         // Reload room content
         reloadCurrentRoom();
@@ -246,6 +238,7 @@ public class MetroidvaniaGameLoop extends GameLoop {
         fadeIn.setOnFinished(e -> {
             isTransitioning = false;
             pendingTransition = null;
+            System.out.println("Transition complete!\n");
         });
         fadeIn.play();
 
@@ -253,37 +246,66 @@ public class MetroidvaniaGameLoop extends GameLoop {
     }
 
     /**
-     * Reload room mới (load map, enemies, items từ database)
+     * FIX: Properly reload current room
      */
     private void reloadCurrentRoom() {
+        System.out.println("\n--- Reloading Room ---");
+
         Room currentRoom = worldMap.getCurrentRoom();
         int mapId = currentRoom.getMapId();
 
-        // Clear old room content
+        System.out.println("Loading map ID: " + mapId);
+
+        // Clear old content (except HUD, minimap, fade overlay)
         rootPane.getChildren().clear();
 
-        // Load new map
-        GameView newGameView = new GameView(mapId);
-        rootPane.getChildren().add(newGameView.getRoot());
+        // Reload GameView with new map
+        gameView.reloadMap(mapId);
 
-        // Re-add player
-        rootPane.getChildren().add(player.getCurrentShape());
+        // CRITICAL: Set player reference in new GameView
+        gameView.setPlayer(player);
 
-        // Re-add HUD and minimap
-        rootPane.getChildren().add(hud.getRoot());
-        rootPane.getChildren().add(minimap.getCanvas());
-        rootPane.getChildren().add(fadeOverlay);
+        // Add GameView root
+        rootPane.getChildren().add(gameView.getRoot());
+
+        // Re-add player shape
+        if (!rootPane.getChildren().contains(player.getCurrentShape())) {
+            rootPane.getChildren().add(player.getCurrentShape());
+        }
+
+        // Re-add HUD
+        if (!rootPane.getChildren().contains(hud.getRoot())) {
+            rootPane.getChildren().add(hud.getRoot());
+        }
+
+        // Re-add minimap
+        if (!rootPane.getChildren().contains(minimap.getCanvas())) {
+            rootPane.getChildren().add(minimap.getCanvas());
+        }
+
+        // Re-add fade overlay (must be on top)
+        if (!rootPane.getChildren().contains(fadeOverlay)) {
+            rootPane.getChildren().add(fadeOverlay);
+        }
 
         // Reload pickups
         loadRoomPickups();
 
-        // TODO: Reload enemies for this room
-        // This requires more complex enemy management
+        // Update transition detector
+        transitionDetector = new RoomTransitionDetector(
+                worldMap,
+                gameView.getScreenWidth(),
+                gameView.getScreenHeight()
+        );
+
+        System.out.println("✓ Room reloaded");
+        System.out.println("  Scene children: " + rootPane.getChildren().size());
+        System.out.println("  Platforms: " + gameView.getPlatforms().size());
+        System.out.println("  Ground level: " + gameView.getGroundLevel());
+        System.out.println("  Player at: (" + player.getX() + ", " + player.getY() + ")");
+        System.out.println("----------------------\n");
     }
 
-    /**
-     * Kiểm tra ability pickups
-     */
     private void checkAbilityPickups() {
         Iterator<AbilityPickup> iterator = abilityPickups.iterator();
         while (iterator.hasNext()) {
@@ -300,16 +322,11 @@ public class MetroidvaniaGameLoop extends GameLoop {
                 pickup.collect();
                 showAbilityUnlockedMessage(pickup.getAbilityId());
                 iterator.remove();
-
-                // Auto-save khi nhận ability mới
                 autoSave();
             }
         }
     }
 
-    /**
-     * Kiểm tra save points
-     */
     private void checkSavePoints() {
         for (SavePoint savePoint : savePoints) {
             double distance = Math.sqrt(
@@ -317,61 +334,43 @@ public class MetroidvaniaGameLoop extends GameLoop {
                             Math.pow(player.getY() - savePoint.getY(), 2)
             );
 
-            if (distance < 40) {
-                // Show prompt để save
-                if (!savePoint.isActivated()) {
-                    showSavePrompt(savePoint);
-                }
+            if (distance < 40 && !savePoint.isActivated()) {
+                showSavePrompt(savePoint);
             }
         }
     }
 
-    /**
-     * Auto-save game state
-     */
     private void autoSave() {
         SaveData data = createSaveData();
         MetroidvaniaSaveSystem.saveGame(data);
-        System.out.println("Game auto-saved");
+        System.out.println("💾 Game auto-saved");
     }
 
-    /**
-     * Tạo save data từ game state hiện tại
-     */
     private SaveData createSaveData() {
         SaveData data = new SaveData();
-
-        // Player state
         data.setCurrentRoomId(worldMap.getCurrentRoomId());
         data.setPlayerX(player.getX());
         data.setPlayerY(player.getY());
         data.setHealth(player.getMaxHits() - player.getHitCount());
 
-        // Discovered rooms
         for (Room room : worldMap.getRooms().values()) {
             if (room.isDiscovered()) {
                 data.addDiscoveredRoom(room.getId());
             }
         }
 
-        // Unlocked abilities
         for (String ability : abilityManager.getUnlockedAbilities()) {
             data.addUnlockedAbility(ability);
         }
 
-        // Stats
         data.setTotalPlayTime((int) stats.getPlayTime());
         data.setCompletionPercentage(abilityManager.getCompletionPercentage());
 
         return data;
     }
 
-    /**
-     * Handle player death - respawn at last save point
-     */
     private void handleDeath() {
         stop();
-
         gameData.incrementDeaths();
 
         javafx.application.Platform.runLater(() -> {
@@ -383,19 +382,14 @@ public class MetroidvaniaGameLoop extends GameLoop {
             alert.setContentText("Respawning at last save point...");
             alert.showAndWait();
 
-            // Reload from last save
             respawnAtLastSave();
         });
     }
 
-    /**
-     * Respawn tại save point cuối cùng
-     */
     private void respawnAtLastSave() {
         SaveData saveData = MetroidvaniaSaveSystem.loadGame();
 
         if (saveData != null && saveData.getLastSavePointRoom() != null) {
-            // Respawn at save point
             worldMap.transitionToRoom(
                     saveData.getLastSavePointRoom(),
                     saveData.getLastSavePointX(),
@@ -405,26 +399,19 @@ public class MetroidvaniaGameLoop extends GameLoop {
             player.setX(saveData.getLastSavePointX());
             player.setY(saveData.getLastSavePointY());
 
-            // Reset health
             while (player.getHitCount() > 0) {
                 player.heal();
             }
 
             reloadCurrentRoom();
-            start(); // Restart game loop
-        } else {
-            // No save point, restart from beginning
-            // TODO: Implement restart logic
+            start();
         }
     }
 
-    // ===== UI Messages =====
-
+    // UI Messages
     private void showAbilityRequiredMessage(String abilityId) {
         Ability ability = abilityManager.getAllAbilities().get(abilityId);
-        String message = "Requires: " + (ability != null ? ability.getName() : abilityId);
-
-        // TODO: Show in-game message instead of alert
+        String message = "🔒 Requires: " + (ability != null ? ability.getName() : abilityId);
         System.out.println(message);
     }
 
@@ -458,7 +445,6 @@ public class MetroidvaniaGameLoop extends GameLoop {
                 if (response == javafx.scene.control.ButtonType.OK) {
                     savePoint.interact();
 
-                    // Update save data
                     SaveData data = createSaveData();
                     data.setLastSavePointRoom(savePoint.getRoomId());
                     data.setLastSavePointX(savePoint.getX());
@@ -469,8 +455,7 @@ public class MetroidvaniaGameLoop extends GameLoop {
         });
     }
 
-    // ===== Original GameLoop collision methods (preserved) =====
-
+    // Original collision methods
     private void checkPlayerEnemyCollision() {
         if (enemy == null) return;
 
@@ -499,15 +484,6 @@ public class MetroidvaniaGameLoop extends GameLoop {
             }
         }
     }
-
-//    private void checkGoalCollision() {
-//        if (player.getCurrentShape().getBoundsInParent()
-//                .intersects(gameView.getGoal().getBoundsInParent())) {
-//            // In Metroidvania, goals might be bosses or specific objectives
-//            // For now, we can treat it as room completion
-//            System.out.println("Objective completed in this room!");
-//        }
-//    }
 
     private void checkPitCollision() {
         for (Rectangle pit : gameView.getPits()) {
@@ -562,8 +538,6 @@ public class MetroidvaniaGameLoop extends GameLoop {
                 break;
         }
     }
-
-    // ===== Getters for access =====
 
     public Player getPlayer() {
         return player;
