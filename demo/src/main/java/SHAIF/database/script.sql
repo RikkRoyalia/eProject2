@@ -133,7 +133,7 @@ VALUES
 -- ===============================
 INSERT INTO platforms (map_id, x, y, width, height, platform_type) VALUES
     (1, 0, 680, 1280, 40, 'GROUND'),
-
+    -- to the right
     (1, 640, 600, 60, 20, 'STATIC'),
     (1, 675, 565, 60, 20, 'STATIC'),
     (1, 710, 530, 60, 20, 'STATIC'),
@@ -141,58 +141,95 @@ INSERT INTO platforms (map_id, x, y, width, height, platform_type) VALUES
     (1, 780, 460, 60, 20, 'STATIC'),
     (1, 815, 425, 60, 20, 'STATIC'),
     (1, 850, 390, 430, 20, 'STATIC'),
-    (1, 1040, 340, 50, 50, 'STATIC'),
-
+        -- house
+    (1, 1040, 290, 120, 100, 'STATIC'),
+    -- save point
     (1, 1040, 600, 100, 20, 'STATIC'),
-
+    -- to the left
     (1, 0, 600, 60, 20, 'STATIC'),
     (1, 35, 565, 60, 20, 'STATIC'),
     (1, 70, 530, 200, 20, 'STATIC'),
+        -- house
     (1, 100, 480, 50, 50, 'STATIC'),
 
-    (2, 0, 680, 600, 40, 'GROUND'),
-    (2, 680, 680, 600, 40, 'GROUND'),
-    (2, 550, 200, 150, 20, 'STATIC'),
-    (2, 600, 280, 150, 20, 'STATIC'),
-    (2, 550, 360, 150, 20, 'STATIC'),
-    (2, 600, 440, 150, 20, 'STATIC'),
 
+    -- Ground and edges
+    (2, 0, 680, 1280, 40, 'GROUND'),
+    (2, 0, 0, 10, 540, 'STATIC'),
+    (2, 1270, 280, 10, 400, 'STATIC'),
+    -- Attach to ground
+    (2, 900, 660, 20, 20, 'STATIC'),
+    -- Attach to right edge
+    (2, 1180, 520, 90, 40, 'STATIC'),
+    (2, 1160, 520, 20, 20, 'STATIC'),
+    (2, 1190, 390, 80, 50, 'STATIC'),
+    (2, 1140, 210, 140, 90, 'STATIC'),
+    -- To the right
+    (2, 1050, 440, 80, 30, 'STATIC'),
+    (2, 1050, 590, 80, 30, 'STATIC'),
+    -- Attach to left edge
+        -- Upper
+    (2,   10, 80, 150, 30, 'STATIC'),
+    (2,  160, 95, 100, 90, 'STATIC'),
+    (2,  260, 125, 80, 30, 'STATIC'),
+    (2,  340, 140, 80, 30, 'STATIC'),
+        -- Between
+    (2,   0, 260, 1040, 50, 'STATIC'),
+    (2, 1040, 310,   20, 20, 'STATIC'),
+        -- Lower
+    (2,   10, 420, 120, 30, 'STATIC'),
+    (2,   140, 485, 120, 30, 'STATIC'),
+    (2,  300, 530, 120, 30, 'STATIC'),
+    -- Middle
+    (2,  680, 0, 100, 110, 'STATIC'),
+    (2,  460, 180, 80, 30, 'STATIC'),
+    (2,  480, 510, 500, 50, 'STATIC'),
+    (2,  980, 510, 20, 20, 'STATIC'),
+
+
+    -- ground and edges
     (3, 0, 680, 1280, 40, 'GROUND'),
-    (3, 120, 520, 140, 20, 'STATIC'),
-    (3, 300, 460, 140, 20, 'STATIC'),
-    (3, 520, 420, 160, 20, 'STATIC'),
-    (3, 250, 360, 140, 20, 'STATIC'),
-    (3, 420, 300, 140, 20, 'STATIC'),
-    (3, 150, 260, 120, 20, 'STATIC'),
-    (3,   0,   0, 400, 40, 'STATIC'),
-    (3, 360,   0, 120, 120, 'STATIC'),
-    (3, 620,   0, 60, 720, 'STATIC'),
-    (3, 700, 100, 260, 20, 'STATIC'),
-    (3, 700, 180, 260, 20, 'STATIC'),
-    (3, 700, 260, 260, 20, 'STATIC'),
-    (3, 760, 360, 120, 20, 'STATIC'),
-    (3, 900, 320, 120, 20, 'STATIC'),
-    (3, 1040, 280, 120, 20, 'STATIC'),
-    (3, 820, 420, 120, 20, 'STATIC'),
-    (3, 980, 420, 120, 20, 'STATIC'),
-    (3, 760, 520, 160, 20, 'STATIC'),
-    (3, 960, 520, 160, 20, 'STATIC'),
-    (3, 820, 620, 200, 20, 'STATIC'),
-    (3, 1050, 600, 120, 20, 'STATIC'),
+    (3, 0, 60, 10, 620, 'STATIC'),
+    (3, 1270, 0, 10, 340, 'STATIC'),
+    -- attach to the right
+    (3, 980, 530, 300, 150, 'STATIC'),
+    (3, 950, 560, 30, 20, 'STATIC'),
+    (3, 900, 640, 80, 40, 'STATIC'),
+    (3, 850, 660, 50, 20, 'STATIC'),
+    (3, 1050, 300, 220, 40, 'STATIC'),
+    (3, 1030, 80, 240, 40, 'STATIC'),
+    (3, 990, 80, 40, 15, 'STATIC'),
+    -- attach to the left
+    (3, 10, 60, 130, 40, 'STATIC'),
+    (3, 10, 210, 210, 50, 'STATIC'),
+    (3, 10, 410, 850, 80, 'STATIC'),
+    (3, 10, 490, 170, 50, 'STATIC'),
+    (3, 860, 470, 30, 20, 'STATIC'),
+    (3, 400, 360, 280, 50, 'STATIC'),
+    (3, 570, 320, 90, 40, 'STATIC'),
+    -- middle
+    (3, 260, 130, 120, 30, 'STATIC'),
+    (3, 280, 270, 120, 30, 'STATIC'),
+    (3, 480, 70, 120, 30, 'STATIC'),
+    (3, 690, 240, 120, 30, 'STATIC'),
+    (3, 840, 160, 120, 30, 'STATIC'),
+
 
     (4, 0, 680, 600, 40, 'GROUND'),
     (4, 680, 680, 600, 40, 'GROUND'),
 
+
     (5, 0, 680, 1280, 40, 'GROUND'),
+
 
     (6, 0, 680, 1280, 40, 'GROUND');
 
 -- ===============================
 -- SAVE POINTS
 -- ===============================
-    INSERT INTO save_points (map_id, x, y, name) VALUES
-                                                     (1, 1100,580, 'default-savepoint'),
-                                                     (2, 500,640, 'dark-forest-savepoint');
+INSERT INTO save_points (map_id, x, y, name) VALUES
+    (1, 1100,580, 'default-savepoint'),
+    (2, 500,640, 'dark-forest-savepoint');
 
 -- ===============================
 -- HAZARDS
@@ -221,14 +258,16 @@ INSERT INTO items (map_id, x, y, item_type, ability_id) VALUES
 INSERT INTO room_connections
 (from_map_id, to_map_id, edge, spawn_x, spawn_y, required_ability)
 VALUES
-    (1, 2, 'RIGHT', 80, 600, NULL),
-    (2, 1, 'LEFT', 1200, 600, NULL),
-    (1, 4, 'LEFT', 1200, 600, NULL),
-    (4, 1, 'RIGHT', 80, 600, NULL),
-    (2, 3, 'RIGHT', 80, 600, NULL),
-    (3, 2, 'LEFT', 1200, 600, NULL),
-    (4, 5, 'LEFT', 1200, 600, NULL),
-    (5, 4, 'RIGHT', 80, 600, NULL);
+    (1, 2, 'RIGHT', 15, 650, NULL),
+    (2, 1, 'LEFT', 1265, 650, NULL),
+    (2, 3, 'RIGHT', 15, 30, NULL),
+    (3, 2, 'LEFT', 1265, 180, NULL),
+    (1, 4, 'LEFT', 1265, 180, NULL),
+    (4, 1, 'RIGHT', 1265, 180, NULL),
+    (4, 5, 'LEFT', 1265, 660, NULL),
+    (5, 4, 'RIGHT', 15, 660, NULL),
+    (5, 6, 'LEFT', 1265, 660, NULL),
+    (6, 5, 'RIGHT', 15, 660, NULL);
 
 -- ===============================
 -- VIEWS

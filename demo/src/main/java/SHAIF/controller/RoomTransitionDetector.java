@@ -11,7 +11,7 @@ import SHAIF.model.RoomConnection;
  * FIXED: Now uses spawn positions from database instead of calculating them
  */
 public class RoomTransitionDetector {
-    private static final double TRANSITION_THRESHOLD = 30; // pixels từ mép màn hình
+    private static final double TRANSITION_THRESHOLD = 10; // pixels từ mép màn hình
 
     private final WorldMap worldMap;
     private final double screenWidth;
@@ -63,7 +63,7 @@ public class RoomTransitionDetector {
                 // Tìm target room
                 Room targetRoom = worldMap.getRooms().get(conn.getTargetRoomId());
                 if (targetRoom != null) {
-                    // ⭐ KEY FIX: Sử dụng spawn position TỪ DATABASE
+                    // Sử dụng spawn position TỪ DATABASE
                     // conn.getSpawnX() và conn.getSpawnY() là spawn_x, spawn_y từ room_connections table
                     double spawnX = conn.getSpawnX();
                     double spawnY = conn.getSpawnY();
@@ -93,13 +93,13 @@ public class RoomTransitionDetector {
     public String getNearbyTransitionDirection(Player player) {
         double playerX = player.getX();
         double playerY = player.getY();
-        double threshold = TRANSITION_THRESHOLD * 2;
+        double threshold = TRANSITION_THRESHOLD;
 
         Room currentRoom = worldMap.getCurrentRoom();
         if (currentRoom == null) return null;
 
         // Check each edge and see if there's a connection
-        if (playerX <= threshold) {
+        if (playerX < threshold) {
             for (RoomConnection conn : currentRoom.getConnections()) {
                 if (conn.getDirection().equalsIgnoreCase("LEFT")) {
                     return "LEFT";

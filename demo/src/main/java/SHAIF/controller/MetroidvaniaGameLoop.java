@@ -411,7 +411,7 @@ public class MetroidvaniaGameLoop extends GameLoop {
     // UI Messages
     private void showAbilityRequiredMessage(String abilityId) {
         Ability ability = abilityManager.getAllAbilities().get(abilityId);
-        String message = "🔒 Requires: " + (ability != null ? ability.getName() : abilityId);
+        String message = "Requires: " + (ability != null ? ability.getName() : abilityId);
         System.out.println(message);
     }
 
