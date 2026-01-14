@@ -18,7 +18,7 @@ public class Platform {
         this.shape = new Rectangle(width, height);
         this.shape.setX(x);
         this.shape.setY(y);
-        this.shape.getStyleClass().add("obstacle");
+        this.shape.getStyleClass().add("platform");
     }
 
     public Rectangle getShape() {

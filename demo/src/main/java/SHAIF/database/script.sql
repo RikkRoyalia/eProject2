@@ -182,6 +182,7 @@ INSERT INTO platforms (map_id, x, y, width, height, platform_type) VALUES
     (2,  300, 530, 120, 30, 'STATIC'),
     -- Middle
     (2,  680, 0, 100, 110, 'STATIC'),
+    (2,  715, 110, 30, 150, 'BREAKABLE'),
     (2,  460, 180, 80, 30, 'STATIC'),
     (2,  480, 510, 500, 50, 'STATIC'),
     (2,  980, 510, 20, 20, 'STATIC'),
@@ -215,8 +216,26 @@ INSERT INTO platforms (map_id, x, y, width, height, platform_type) VALUES
     (3, 840, 160, 120, 30, 'STATIC'),
 
 
-    (4, 0, 680, 600, 40, 'GROUND'),
-    (4, 680, 680, 600, 40, 'GROUND'),
+    -- ground and edges
+    (4, 0, 680, 190, 40, 'GROUND'),
+    (4, 490, 680, 990, 40, 'GROUND'),
+    (4, 1270, 0, 10, 680, 'STATIC'),
+    (4, 0, 140, 10, 460, 'STATIC'),
+    (4, 480, 0, 1000, 50, 'STATIC'),
+    -- attach to ground
+    (4, 850, 580, 45, 100, 'STATIC'),
+    (4, 820, 570, 150, 20, 'STATIC'),
+    (4, 730, 620, 120, 20, 'STATIC'),
+    (4, 680, 595, 50, 45, 'STATIC'),
+    (4, 1190, 630, 50, 50, 'STATIC'),
+    -- attach to left
+    (4, 10, 140, 20, 20, 'STATIC'),
+    (4, 10, 160, 60, 20, 'STATIC'),
+    (4, 10, 180, 570, 30, 'STATIC'),
+    (4, 10, 340, 250, 30, 'STATIC'),
+    (4, 10, 460, 875, 45, 'STATIC'),
+    (4, 10, 580, 130, 20, 'STATIC'),
+    (4, 10, 210, 30, 130, 'BREAKABLE'),
 
 
     (5, 0, 680, 1280, 40, 'GROUND'),
@@ -262,12 +281,12 @@ VALUES
     (2, 1, 'LEFT', 1265, 650, NULL),
     (2, 3, 'RIGHT', 15, 30, NULL),
     (3, 2, 'LEFT', 1265, 180, NULL),
-    (1, 4, 'LEFT', 1265, 180, NULL),
-    (4, 1, 'RIGHT', 1265, 180, NULL),
-    (4, 5, 'LEFT', 1265, 660, NULL),
-    (5, 4, 'RIGHT', 15, 660, NULL),
-    (5, 6, 'LEFT', 1265, 660, NULL),
-    (6, 5, 'RIGHT', 15, 660, NULL);
+    (1, 4, 'LEFT', 1265, 650, NULL),
+    (4, 1, 'RIGHT', 15, 650, NULL),
+    (4, 5, 'LEFT', 1265, 650, NULL),
+    (5, 4, 'RIGHT', 15, 650, NULL),
+    (5, 6, 'LEFT', 1265, 650, NULL),
+    (6, 5, 'RIGHT', 15, 650, NULL);
 
 -- ===============================
 -- VIEWS

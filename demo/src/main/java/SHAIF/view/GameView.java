@@ -4,6 +4,8 @@ import SHAIF.database.MapDAO;
 import SHAIF.model.*;
 import SHAIF.model.Platform;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
@@ -23,6 +25,9 @@ public class GameView {
     private MapData currentMapData;
     private Player player;
 
+    // Background layer
+    private ImageView backgroundLayer;
+
     /**
      * Constructor - load từ database
      */
@@ -34,6 +39,15 @@ public class GameView {
         obstacles = new ArrayList<>();
         pits = new ArrayList<>();
         items = new ArrayList<>();
+
+        // Khởi tạo background layer
+        backgroundLayer = new ImageView();
+        backgroundLayer.setPreserveRatio(false);
+        backgroundLayer.setSmooth(true);
+
+        // QUAN TRỌNG: Thêm background vào root TRƯỚC KHI load map
+        // để background ở dưới cùng
+        root.getChildren().add(backgroundLayer);
 
         // Load map data từ database
         loadMapFromDatabase(mapId);
@@ -54,7 +68,10 @@ public class GameView {
         System.out.println("\n=== LOADING MAP " + mapId + " ===");
 
         // XÓA HẾT NỘI DUNG CŨ TRƯỚC KHI LOAD MỚI
+        // NHƯNG GIỮ LẠI background layer
         root.getChildren().clear();
+        root.getChildren().add(backgroundLayer); // Add lại background
+
         platforms.clear();
         obstacles.clear();
         pits.clear();
@@ -86,6 +103,9 @@ public class GameView {
         root.setPrefSize(screenWidth, screenHeight);
         System.out.println("✓ Root pane size set: " + screenWidth + "x" + screenHeight);
         System.out.println("✓ Ground level: " + groundLevel);
+
+        // LOAD BACKGROUND IMAGE
+        loadBackgroundImage(mapId);
 
         // Load platforms từ database
         System.out.println("\n--- Loading Platforms ---");
@@ -183,7 +203,7 @@ public class GameView {
                 System.out.println("  Item: " + itemType + " at (" + iData.getX() + ", " + iData.getY() + ")");
 
             } catch (IllegalArgumentException e) {
-                System.err.println("  ❌ Invalid item type: " + itemTypeStr);
+                System.err.println(" Invalid item type: " + itemTypeStr);
             }
         }
         System.out.println("✓ Added " + itemCount + " items to scene");
@@ -193,6 +213,59 @@ public class GameView {
         System.out.println("================================\n");
 
         updatePlayerForCurrentMap();
+    }
+
+    /**
+     * Load background image dựa trên mapId
+     */
+    private void loadBackgroundImage(int mapId) {
+        try {
+            // Thử load background cho map cụ thể
+            String imagePath = "/image/background_" + mapId + ".png";
+            System.out.println("\n--- Loading Background ---");
+            System.out.println("  Trying to load: " + imagePath);
+
+            Image backgroundImage = new Image(getClass().getResourceAsStream(imagePath));
+
+            if (backgroundImage.isError()) {
+                System.err.println("  ✖ Failed to load background for map " + mapId);
+                loadDefaultBackground();
+            } else {
+                backgroundLayer.setImage(backgroundImage);
+                backgroundLayer.setFitWidth(screenWidth);
+                backgroundLayer.setFitHeight(screenHeight);
+                System.out.println("  Background loaded successfully!");
+                System.out.println("  Image size: " + backgroundImage.getWidth() + "x" + backgroundImage.getHeight());
+            }
+
+        } catch (Exception e) {
+            System.err.println("  Exception loading background: " + e.getMessage());
+            loadDefaultBackground();
+        }
+    }
+
+    /**
+     * Load default background nếu không tìm thấy background cho map
+     */
+    private void loadDefaultBackground() {
+        try {
+            String defaultPath = "/image/background_default.png";
+            System.out.println("  Loading default background: " + defaultPath);
+
+            Image defaultImage = new Image(getClass().getResourceAsStream(defaultPath));
+
+            if (!defaultImage.isError()) {
+                backgroundLayer.setImage(defaultImage);
+                backgroundLayer.setFitWidth(screenWidth);
+                backgroundLayer.setFitHeight(screenHeight);
+                System.out.println("Default background loaded!");
+            } else {
+                System.err.println("Default background also failed to load");
+                // Không có background, để màu nền từ CSS
+            }
+        } catch (Exception e) {
+            System.err.println("Exception loading default background: " + e.getMessage());
+        }
     }
 
     /**
