@@ -5,6 +5,7 @@ import SHAIF.screen.MenuScreen;
 import SHAIF.view.GameHUD;
 import SHAIF.view.GameView;
 import javafx.animation.AnimationTimer;
+import javafx.geometry.Bounds;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
@@ -56,6 +57,7 @@ public class GameLoop {
                 // Cập nhật game
                 player.applyGravityWithPlatforms(gameView.getPlatforms(), gameView.getGroundLevel());
                 player.update();
+                resolveHorizontalCollisions();
                 dashController.update();
 
                 if (enemy.shouldShoot(now)) {
@@ -296,6 +298,57 @@ public class GameLoop {
         // Check survivor (5 minutes = 300 seconds)
         if (stats.getPlayTime() >= 300) {
             achievementManager.checkAchievement("survivor", 1);
+        }
+    }
+
+    /**
+     * Xử lý va chạm ngang với tường/obstacle để player không đi xuyên wall
+     */
+    protected void resolveHorizontalCollisions() {
+        Bounds playerBounds = player.getCurrentShape().getBoundsInParent();
+        double playerCenterX = player.getX();
+        double halfWidth = player.getWidth() / 2.0;
+
+        // 1) Va chạm với obstacles (tường, spike, lava, ... trừ PIT)
+        for (Rectangle obstacle : gameView.getObstacles()) {
+            // Bỏ qua PIT vì đã xử lý bằng logic rơi pit riêng
+            if (obstacle.getStyleClass().contains("pit")) continue;
+
+            Bounds obstacleBounds = obstacle.getBoundsInParent();
+            if (playerBounds.intersects(obstacleBounds)) {
+                double obstacleLeft = obstacle.getX();
+                double obstacleRight = obstacle.getX() + obstacle.getWidth();
+
+                // Nếu player ở bên trái obstacle -> chặn bên trái
+                if (playerCenterX < obstacleLeft) {
+                    player.setX(obstacleLeft - halfWidth - 0.5);
+                } else if (playerCenterX > obstacleRight) {
+                    // Nếu player ở bên phải obstacle -> chặn bên phải
+                    player.setX(obstacleRight + halfWidth + 0.5);
+                }
+
+                // Cập nhật lại bounds sau khi dịch
+                playerBounds = player.getCurrentShape().getBoundsInParent();
+            }
+        }
+
+        // 2) Va chạm ngang với platform (mép bên của platform cũng là tường)
+        for (Platform platform : gameView.getPlatforms()) {
+            Rectangle platShape = platform.getShape();
+            Bounds platBounds = platShape.getBoundsInParent();
+
+            if (playerBounds.intersects(platBounds)) {
+                double platLeft = platform.getLeft();
+                double platRight = platform.getRight();
+
+                if (playerCenterX < platLeft) {
+                    player.setX(platLeft - halfWidth - 0.5);
+                } else if (playerCenterX > platRight) {
+                    player.setX(platRight + halfWidth + 0.5);
+                }
+
+                playerBounds = player.getCurrentShape().getBoundsInParent();
+            }
         }
     }
 }

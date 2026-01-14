@@ -112,6 +112,7 @@ public class MetroidvaniaGameLoop extends GameLoop {
     private void updateEntities() {
         player.applyGravityWithPlatforms(gameView.getPlatforms(), gameView.getGroundLevel());
         player.update();
+        resolveHorizontalCollisions();
         dashController.update();
 
         if (enemy != null && enemy.shouldShoot(System.nanoTime())) {
@@ -389,6 +390,7 @@ public class MetroidvaniaGameLoop extends GameLoop {
     private void respawnAtLastSave() {
         SaveData saveData = MetroidvaniaSaveSystem.loadGame();
 
+        // Nếu đã có save point hợp lệ -> respawn về save point đó
         if (saveData != null && saveData.getLastSavePointRoom() != null) {
             worldMap.transitionToRoom(
                     saveData.getLastSavePointRoom(),
@@ -398,14 +400,54 @@ public class MetroidvaniaGameLoop extends GameLoop {
 
             player.setX(saveData.getLastSavePointX());
             player.setY(saveData.getLastSavePointY());
-
-            while (player.getHitCount() > 0) {
-                player.heal();
+        } else {
+            // FALLBACK: chưa có save point -> respawn về khu vực start an toàn
+            Room startRoom = null;
+            // Ưu tiên room có id "starting_area"
+            if (worldMap.getRooms().containsKey("starting_area")) {
+                startRoom = worldMap.getRooms().get("starting_area");
+            } else {
+                // Nếu không có, lấy room đầu tiên trong map làm start
+                if (!worldMap.getRooms().isEmpty()) {
+                    startRoom = worldMap.getRooms().values().iterator().next();
+                }
             }
 
-            reloadCurrentRoom();
-            start();
+            double spawnX = 100;
+            double spawnY = 600;
+
+            if (startRoom != null) {
+                // Chuyển world map về room start
+                worldMap.transitionToRoom(startRoom.getId(), spawnX, spawnY);
+
+                // Đặt lại vị trí player tại start room
+                player.setX(spawnX);
+                player.setY(spawnY);
+
+                System.out.println("Respawn fallback at START room: " + startRoom.getName() +
+                        " (" + spawnX + ", " + spawnY + ")");
+            } else {
+                // Trường hợp rất hiếm: worldMap chưa có room nào
+                player.setX(spawnX);
+                player.setY(spawnY);
+                System.err.println("WorldMap has no rooms, respawning at default (100, 600)");
+            }
         }
+
+        // Reset hoàn toàn trạng thái chuyển động của player để tránh tự lao vào pit
+        player.setVelY(0);
+        player.setDashing(false);
+        player.stopMovingLeft();
+        player.stopMovingRight();
+
+        // Hồi full máu
+        while (player.getHitCount() > 0) {
+            player.heal();
+        }
+
+        // Reload lại room hiện tại với map và platform đúng, rồi chạy lại loop
+        reloadCurrentRoom();
+        start();
     }
 
     // UI Messages
