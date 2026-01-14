@@ -11,6 +11,11 @@ public class MenuScreen {
     private final Stage stage;
     private final VBox root;
     private Scene scene;
+    private Runnable onPlayCallback;
+    private Runnable onSettingsCallback;
+    private Runnable onLevelSelectCallback;
+    private Runnable onShopCallback;
+    private Runnable onAchievementsCallback;
 
     public MenuScreen(Stage stage) {
         this.stage = stage;
@@ -34,6 +39,21 @@ public class MenuScreen {
         playButton.getStyleClass().add("menu-button");
         playButton.setOnAction(e -> onPlayClicked());
 
+        // Level Select Button
+        Button levelSelectButton = new Button("LEVEL SELECT");
+        levelSelectButton.getStyleClass().add("menu-button");
+        levelSelectButton.setOnAction(e -> onLevelSelectClicked());
+
+        // Shop Button
+        Button shopButton = new Button("SHOP");
+        shopButton.getStyleClass().add("menu-button");
+        shopButton.setOnAction(e -> onShopClicked());
+
+        // Achievements Button
+        Button achievementsButton = new Button("ACHIEVEMENTS");
+        achievementsButton.getStyleClass().add("menu-button");
+        achievementsButton.setOnAction(e -> onAchievementsClicked());
+
         // Settings Button
         Button settingsButton = new Button("SETTINGS");
         settingsButton.getStyleClass().add("menu-button");
@@ -44,7 +64,8 @@ public class MenuScreen {
         exitButton.getStyleClass().add("exit-button");
         exitButton.setOnAction(e -> System.exit(0));
 
-        root.getChildren().addAll(title, subtitle, playButton, settingsButton, exitButton);
+        root.getChildren().addAll(title, subtitle, playButton, levelSelectButton,
+                shopButton, achievementsButton, settingsButton, exitButton);
 
         scene = new Scene(root, 800, 450);
 
@@ -60,15 +81,47 @@ public class MenuScreen {
     }
 
     private void onSettingsClicked() {
-        System.out.println("Settings clicked - Coming soon!");
-        // TODO: Implement settings screen
+        if (onSettingsCallback != null) {
+            onSettingsCallback.run();
+        }
     }
 
-    // Callback cho nút Play
-    private Runnable onPlayCallback;
+    private void onLevelSelectClicked() {
+        if (onLevelSelectCallback != null) {
+            onLevelSelectCallback.run();
+        }
+    }
+
+    private void onShopClicked() {
+        if (onShopCallback != null) {
+            onShopCallback.run();
+        }
+    }
+
+    private void onAchievementsClicked() {
+        if (onAchievementsCallback != null) {
+            onAchievementsCallback.run();
+        }
+    }
 
     public void setOnPlayCallback(Runnable callback) {
         this.onPlayCallback = callback;
+    }
+
+    public void setOnSettingsCallback(Runnable callback) {
+        this.onSettingsCallback = callback;
+    }
+
+    public void setOnLevelSelectCallback(Runnable callback) {
+        this.onLevelSelectCallback = callback;
+    }
+
+    public void setOnShopCallback(Runnable callback) {
+        this.onShopCallback = callback;
+    }
+
+    public void setOnAchievementsCallback(Runnable callback) {
+        this.onAchievementsCallback = callback;
     }
 
     public Scene getScene() {

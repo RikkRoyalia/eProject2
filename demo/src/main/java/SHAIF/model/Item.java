@@ -1,18 +1,62 @@
 package SHAIF.model;
 
+import javafx.animation.Animation;
+import javafx.animation.RotateTransition;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
+import javafx.util.Duration;
 
 public class Item implements InteractiveObjects {
     private final Circle shape;
-    private String itemType;
+    private ItemType itemType;
     private boolean collected;
+    private RotateTransition rotateAnimation;
 
-    public Item(double x, double y, String itemType) {
+    public Item(double x, double y, ItemType itemType) {
         this.shape = new Circle(x, y, 8);
-        this.shape.getStyleClass().add("item");
         this.itemType = itemType;
         this.collected = false;
+
+        // Set style class dựa trên loại item
+        setupItemStyle();
+
+        // Tạo animation xoay
+        setupAnimation();
+
+        System.out.println("Item created: " + itemType + " at (" + x + ", " + y + ")");
+    }
+
+    private void setupItemStyle() {
+        switch (itemType) {
+            case HEALTH:
+                shape.getStyleClass().add("item-health");
+                break;
+            case COIN:
+                shape.getStyleClass().add("item-coin");
+                break;
+            case DASH_BOOST:
+                shape.getStyleClass().add("item-dash");
+                break;
+            case SHIELD:
+                shape.getStyleClass().add("item-shield");
+                break;
+            case SPEED_BOOST:
+                shape.getStyleClass().add("item-speed");
+                break;
+            case DOUBLE_JUMP:
+                shape.getStyleClass().add("item-jump");
+                break;
+            default:
+                shape.getStyleClass().add("item");
+        }
+    }
+
+    private void setupAnimation() {
+        rotateAnimation = new RotateTransition(Duration.millis(2000), shape);
+        rotateAnimation.setByAngle(360);
+        rotateAnimation.setCycleCount(Animation.INDEFINITE);
+        rotateAnimation.setAutoReverse(false);
+        rotateAnimation.play();
     }
 
     // ===== InteractiveObjects Interface Implementation =====
@@ -21,12 +65,20 @@ public class Item implements InteractiveObjects {
     public void activate() {
         collected = false;
         shape.setVisible(true);
+        if (rotateAnimation != null) {
+            rotateAnimation.play();
+        }
+        System.out.println("Item activated: " + itemType);
     }
 
     @Override
     public void deactivate() {
         collected = true;
         shape.setVisible(false);
+        if (rotateAnimation != null) {
+            rotateAnimation.stop();
+        }
+        System.out.println("Item deactivated: " + itemType);
     }
 
     @Override
@@ -47,13 +99,13 @@ public class Item implements InteractiveObjects {
 
     @Override
     public void update() {
-        // Items có thể có animation nhấp nháy, xoay, v.v.
-        // Tạm thời để trống
+        // Animation được xử lý bởi RotateTransition
+        // Có thể thêm các animation khác ở đây nếu cần
     }
 
     @Override
     public String getType() {
-        return "ITEM_" + itemType;
+        return "ITEM_" + itemType.name();
     }
 
     // ===== Item specific methods =====
@@ -62,11 +114,17 @@ public class Item implements InteractiveObjects {
         deactivate();
     }
 
-    public String getItemType() {
+    public ItemType getItemType() {
         return itemType;
     }
 
     public boolean isCollected() {
         return collected;
+    }
+
+    public void stopAnimation() {
+        if (rotateAnimation != null) {
+            rotateAnimation.stop();
+        }
     }
 }

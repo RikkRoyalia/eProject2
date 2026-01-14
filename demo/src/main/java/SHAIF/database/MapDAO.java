@@ -14,6 +14,11 @@ public class MapDAO {
         MapData mapData = new MapData();
         Connection conn = DatabaseConnection.getConnection();
 
+        if (conn == null) {
+            System.err.println("ERROR: Database connection is null!");
+            return null;
+        }
+
         try {
             // Load map info
             String mapQuery = "SELECT * FROM maps WHERE map_id = ?";
@@ -26,11 +31,20 @@ public class MapDAO {
                 mapData.setMapName(mapRs.getString("map_name"));
                 mapData.setScreenWidth(mapRs.getDouble("screen_width"));
                 mapData.setScreenHeight(mapRs.getDouble("screen_height"));
-                mapData.setGroundLevel(mapRs.getDouble("ground_level"));
-                mapData.setGoalX(mapRs.getDouble("goal_x"));
-                mapData.setGoalY(mapRs.getDouble("goal_y"));
-                mapData.setGoalWidth(mapRs.getDouble("goal_width"));
-                mapData.setGoalHeight(mapRs.getDouble("goal_height"));
+
+                // Set default goal nếu không có trong DB
+//                mapData.setGoalX(1200);
+//                mapData.setGoalY(600);
+//                mapData.setGoalWidth(50);
+//                mapData.setGoalHeight(100);
+
+                System.out.println("✓ Map info loaded: " + mapData.getMapName());
+                System.out.println("  Screen: " + mapData.getScreenWidth() + "x" + mapData.getScreenHeight());
+            } else {
+                System.err.println("ERROR: No map found with ID: " + mapId);
+                mapRs.close();
+                mapStmt.close();
+                return null;
             }
             mapRs.close();
             mapStmt.close();
@@ -41,37 +55,50 @@ public class MapDAO {
             platformStmt.setInt(1, mapId);
             ResultSet platformRs = platformStmt.executeQuery();
 
+            int platformCount = 0;
             while (platformRs.next()) {
+                String platformType = platformRs.getString("platform_type");
                 PlatformData platform = new PlatformData(
                         platformRs.getDouble("x"),
                         platformRs.getDouble("y"),
                         platformRs.getDouble("width"),
                         platformRs.getDouble("height"),
-                        platformRs.getString("platform_type")
+                        platformType,
+                        platformType.equals("GROUND")
                 );
                 mapData.addPlatform(platform);
+                platformCount++;
+
+                System.out.println("  Platform " + platformCount + ": (" +
+                        platform.getX() + ", " + platform.getY() + ") " +
+                        platform.getWidth() + "x" + platform.getHeight() + " [" +
+                        platform.getPlatformType() + "]");
             }
+            System.out.println("✓ Loaded " + platformCount + " platforms");
             platformRs.close();
             platformStmt.close();
 
-            // Load obstacles
-            String obstacleQuery = "SELECT * FROM obstacles WHERE map_id = ?";
-            PreparedStatement obstacleStmt = conn.prepareStatement(obstacleQuery);
-            obstacleStmt.setInt(1, mapId);
-            ResultSet obstacleRs = obstacleStmt.executeQuery();
+            // Load hazards (former obstacles)
+            String hazardQuery = "SELECT * FROM hazards WHERE map_id = ?";
+            PreparedStatement hazardStmt = conn.prepareStatement(hazardQuery);
+            hazardStmt.setInt(1, mapId);
+            ResultSet hazardRs = hazardStmt.executeQuery();
 
-            while (obstacleRs.next()) {
-                ObstacleData obstacle = new ObstacleData(
-                        obstacleRs.getDouble("x"),
-                        obstacleRs.getDouble("y"),
-                        obstacleRs.getDouble("width"),
-                        obstacleRs.getDouble("height"),
-                        obstacleRs.getString("obstacle_type")
+            int hazardCount = 0;
+            while (hazardRs.next()) {
+                ObstacleData hazard = new ObstacleData(
+                        hazardRs.getDouble("x"),
+                        hazardRs.getDouble("y"),
+                        hazardRs.getDouble("width"),
+                        hazardRs.getDouble("height"),
+                        hazardRs.getString("hazard_type")
                 );
-                mapData.addObstacle(obstacle);
+                mapData.addObstacle(hazard);
+                hazardCount++;
             }
-            obstacleRs.close();
-            obstacleStmt.close();
+            System.out.println("✓ Loaded " + hazardCount + " hazards");
+            hazardRs.close();
+            hazardStmt.close();
 
             // Load enemies
             String enemyQuery = "SELECT * FROM enemies WHERE map_id = ?";
@@ -79,6 +106,7 @@ public class MapDAO {
             enemyStmt.setInt(1, mapId);
             ResultSet enemyRs = enemyStmt.executeQuery();
 
+            int enemyCount = 0;
             while (enemyRs.next()) {
                 EnemyData enemy = new EnemyData(
                         enemyRs.getDouble("x"),
@@ -86,18 +114,48 @@ public class MapDAO {
                         enemyRs.getString("enemy_type")
                 );
                 mapData.addEnemy(enemy);
+                enemyCount++;
             }
+            System.out.println("✓ Loaded " + enemyCount + " enemies");
             enemyRs.close();
             enemyStmt.close();
 
-            System.out.println("Map '" + mapData.getMapName() + "' loaded successfully!");
-            System.out.println("- Platforms: " + mapData.getPlatforms().size());
-            System.out.println("- Obstacles: " + mapData.getObstacles().size());
-            System.out.println("- Enemies: " + mapData.getEnemies().size());
+            // Load items
+            String itemQuery = "SELECT * FROM items WHERE map_id = ?";
+            PreparedStatement itemStmt = conn.prepareStatement(itemQuery);
+            itemStmt.setInt(1, mapId);
+            ResultSet itemRs = itemStmt.executeQuery();
+
+            int itemCount = 0;
+            while (itemRs.next()) {
+                String itemType = itemRs.getString("item_type");
+
+                // Chuyển đổi item type từ DB sang enum
+                if (itemType.equals("HEALTH") || itemType.equals("COIN") ||
+                        itemType.equals("BUFF") || itemType.equals("ABILITY")) {
+
+                    ItemData item = new ItemData(
+                            itemRs.getDouble("x"),
+                            itemRs.getDouble("y"),
+                            itemType.equals("BUFF") ? "DASH_BOOST" : itemType
+                    );
+                    mapData.addItem(item);
+                    itemCount++;
+
+                    System.out.println("  Item " + itemCount + ": " + itemType +
+                            " at (" + item.getX() + ", " + item.getY() + ")");
+                }
+            }
+            System.out.println("✓ Loaded " + itemCount + " items");
+            itemRs.close();
+            itemStmt.close();
+
+            System.out.println("=== Map loaded successfully ===");
 
         } catch (SQLException e) {
-            System.err.println("Error loading map data!");
+            System.err.println("ERROR loading map data!");
             e.printStackTrace();
+            return null;
         }
 
         return mapData;
@@ -137,20 +195,16 @@ public class MapDAO {
      * Tạo map mới trong database
      */
     public static int createMap(String mapName, double screenWidth, double screenHeight,
-                                double groundLevel, double goalX, double goalY) {
+                                double goalX, double goalY) {
         Connection conn = DatabaseConnection.getConnection();
         int mapId = -1;
 
         try {
-            String query = "INSERT INTO maps (map_name, screen_width, screen_height, " +
-                    "ground_level, goal_x, goal_y) VALUES (?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO maps (map_name, screen_width, screen_height) VALUES (?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, mapName);
             stmt.setDouble(2, screenWidth);
             stmt.setDouble(3, screenHeight);
-            stmt.setDouble(4, groundLevel);
-            stmt.setDouble(5, goalX);
-            stmt.setDouble(6, goalY);
 
             int affectedRows = stmt.executeUpdate();
 
@@ -198,6 +252,32 @@ public class MapDAO {
 
         } catch (SQLException e) {
             System.err.println("Error adding platform!");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Thêm item vào map
+     */
+    public static boolean addItem(int mapId, double x, double y, String itemType) {
+        Connection conn = DatabaseConnection.getConnection();
+
+        try {
+            String query = "INSERT INTO items (map_id, x, y, item_type) VALUES (?, ?, ?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, mapId);
+            stmt.setDouble(2, x);
+            stmt.setDouble(3, y);
+            stmt.setString(4, itemType);
+
+            int affected = stmt.executeUpdate();
+            stmt.close();
+
+            return affected > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error adding item!");
             e.printStackTrace();
             return false;
         }

@@ -14,6 +14,10 @@ public class Player implements Movement {
     private boolean movingLeft;
     private boolean movingRight;
     private boolean isDashing;
+    private double minX = 0;
+    private double maxX = 1280;
+    private double minY = 0;
+    private double maxY = 720;
 
     // Constants
     private final int walkSpeed = 3;
@@ -30,6 +34,17 @@ public class Player implements Movement {
     private int hitCount = 0;  // số lần trúng đạn
     private final int maxHits = 2; // trúng 2 lần sẽ game over
 
+    // Power-ups
+    private boolean hasShield = false;
+    private long shieldEndTime = 0;
+    private boolean hasSpeedBoost = false;
+    private long speedBoostEndTime = 0;
+    private boolean hasDoubleJump = false;
+    private int jumpCount = 0;
+    private boolean hasDashBoost = false;
+    private long dashBoostEndTime = 0;
+
+    private int currentWalkSpeed = walkSpeed;
 
     public Player(double startX, double startY) {
         this.x = startX;
@@ -57,6 +72,34 @@ public class Player implements Movement {
         updatePosition();
     }
 
+    /**
+     * Set screen bounds để giới hạn player
+     */
+    public void setScreenBounds(double minX, double maxX, double minY, double maxY) {
+        this.minX = minX;
+        this.maxX = maxX;
+        this.minY = minY;
+        this.maxY = maxY;
+    }
+
+    /**
+     * Áp dụng bounds khi update position
+     */
+    private void applyBounds() {
+        // Giới hạn X
+        if (x < minX) {
+            x = minX;
+        }
+        if (x > maxX) {
+            x = maxX;
+        }
+
+        // Giới hạn Y (chỉ trên, không giới hạn dưới vì có gravity)
+        if (y < minY) {
+            y = minY;
+        }
+    }
+
     public double getHeight() {
         switch (currentForm) {
             case SQUARE: return squareForm.getHeight();
@@ -76,8 +119,6 @@ public class Player implements Movement {
             default: return 30;
         }
     }
-
-
 
     // ===== Movement Interface Implementation =====
 
@@ -131,19 +172,46 @@ public class Player implements Movement {
         updatePosition();
     }
 
-
-
-
     @Override
     public void update() {
+        // Update power-ups
+        updatePowerUps();
+
         if (currentForm == FormType.CIRCLE) {
             if (movingLeft) {
-                x -= walkSpeed;
+                x -= currentWalkSpeed;
             }
             if (movingRight) {
-                x += walkSpeed;
+                x += currentWalkSpeed;
             }
+            // Áp dụng bounds
+            applyBounds();
             updatePosition();
+        }
+    }
+
+    private void updatePowerUps() {
+        long currentTime = System.nanoTime();
+
+        // Shield
+        if (hasShield && currentTime > shieldEndTime) {
+            hasShield = false;
+        }
+
+        // Speed boost
+        if (hasSpeedBoost && currentTime > speedBoostEndTime) {
+            hasSpeedBoost = false;
+            currentWalkSpeed = walkSpeed;
+        }
+
+        // Dash boost
+        if (hasDashBoost && currentTime > dashBoostEndTime) {
+            hasDashBoost = false;
+        }
+
+        // Reset jump count khi chạm đất
+        if (onGround) {
+            jumpCount = 0;
         }
     }
 
@@ -162,6 +230,11 @@ public class Player implements Movement {
         if (onGround) {
             velY = jumpForce;
             onGround = false;
+            jumpCount = 1;
+        } else if (hasDoubleJump && jumpCount < 2) {
+            // Double jump
+            velY = jumpForce;
+            jumpCount++;
         }
     }
 
@@ -184,12 +257,14 @@ public class Player implements Movement {
     @Override
     public void setX(double x) {
         this.x = x;
+        applyBounds();
         updatePosition();
     }
 
     @Override
     public void setY(double y) {
         this.y = y;
+        applyBounds();
         updatePosition();
     }
 
@@ -233,10 +308,63 @@ public class Player implements Movement {
     }
 
     public void takeDamage() {
+        if (hasShield()) {
+            // Shield bảo vệ khỏi damage
+            return;
+        }
+
         hitCount++;
         currentShape.getStyleClass().clear();
         currentShape.getStyleClass().add("player-damaged");
     }
+
+    public void heal() {
+        if (hitCount > 0) {
+            hitCount--;
+            // Reset style về bình thường
+            switch (currentForm) {
+                case SQUARE:
+                    currentShape.getStyleClass().clear();
+                    currentShape.getStyleClass().add("player-square");
+                    break;
+                case CIRCLE:
+                    currentShape.getStyleClass().clear();
+                    currentShape.getStyleClass().add("player-circle");
+                    break;
+                case TRIANGLE:
+                case L_TRIANGLE:
+                    currentShape.getStyleClass().clear();
+                    currentShape.getStyleClass().add("player-triangle");
+                    break;
+            }
+        }
+    }
+
+    // Power-up methods
+    public void activateShield(long durationSeconds) {
+        hasShield = true;
+        shieldEndTime = System.nanoTime() + (durationSeconds * 1_000_000_000L);
+    }
+
+    public void activateSpeedBoost(long durationSeconds) {
+        hasSpeedBoost = true;
+        speedBoostEndTime = System.nanoTime() + (durationSeconds * 1_000_000_000L);
+        currentWalkSpeed = walkSpeed * 2; // Tăng gấp đôi
+    }
+
+    public void activateDoubleJump() {
+        hasDoubleJump = true;
+    }
+
+    public void activateDashBoost(long durationSeconds) {
+        hasDashBoost = true;
+        dashBoostEndTime = System.nanoTime() + (durationSeconds * 1_000_000_000L);
+    }
+
+    public boolean hasDashBoost() {
+        return hasDashBoost && System.nanoTime() <= dashBoostEndTime;
+    }
+
     public boolean isDead() {
         return hitCount >= maxHits;
     }
@@ -280,5 +408,9 @@ public class Player implements Movement {
     public Circle getCircleForm() { return circleForm; }
     public Polygon getTriangleForm() { return triangleForm; }
     public Polygon getLeftTriangleForm() { return leftTriangleForm; }
-
+    public int getHitCount() { return hitCount; }
+    public int getMaxHits() { return maxHits; }
+    public boolean hasShield() { return hasShield && System.nanoTime() <= shieldEndTime; }
+    public boolean hasSpeedBoost() { return hasSpeedBoost && System.nanoTime() <= speedBoostEndTime; }
+    public boolean hasDoubleJump() { return hasDoubleJump; }
 }

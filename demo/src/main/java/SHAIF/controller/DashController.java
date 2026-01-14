@@ -15,6 +15,7 @@ public class DashController {
 
     private final int dashSpeed = 10;
     private final int dashDistance = 60;
+    private Sound sound;
 
     public DashController(Player player, GameView gameView) {
         this.player = player;
@@ -22,6 +23,7 @@ public class DashController {
         this.isDashing = false;
         this.dashDistanceLeft = 0;
         this.dashDir = 1;
+        this.sound = new Sound();
     }
 
     public void startDash() {
@@ -34,8 +36,10 @@ public class DashController {
 
         // Xác định hướng dash dựa vào movement của player
         if (player.isMovingLeft()) {
+            sound.playSE(5);
             dashDir = -1;
         } else {
+            sound.playSE(5);
             dashDir = 1;
         }
     }

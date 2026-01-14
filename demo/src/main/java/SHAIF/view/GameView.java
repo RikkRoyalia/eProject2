@@ -3,7 +3,6 @@ package SHAIF.view;
 import SHAIF.database.MapDAO;
 import SHAIF.model.*;
 import SHAIF.model.Platform;
-import SHAIF.model.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
@@ -14,75 +13,70 @@ import java.util.List;
 
 public class GameView {
     private final Pane root;
-    private Rectangle goal;
     private final List<Platform> platforms;
-    private List<Rectangle> obstacles;
+    private final List<Item> items;
+    private final List<Rectangle> obstacles;
+    private final List<Rectangle> pits;
     private double screenWidth;
     private double screenHeight;
     private double groundLevel;
     private MapData currentMapData;
-    private List<Rectangle> pits;
+    private Player player;
 
-    // Constructor mặc định - không load từ DB
-    public GameView() {
-//        // Lấy kích thước màn hình
-//        // Lấy kích thước màn hình
-        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-//        screenWidth = screenBounds.getWidth();
-//        screenHeight = screenBounds.getHeight();
-//        groundLevel = screenHeight - 150;
-//        root = new Pane();
-//        root.setPrefSize(screenWidth, screenHeight);
-//        root.getStyleClass().add("game-root");
-//
-//        platforms = new ArrayList<>();
-//
-//        setupPlatforms();
-//        setupGoal();
-
-        screenWidth = 1280;
-        screenHeight = 720;
-        groundLevel = 680; // mặt trên của mặt đất
-
-        root = new Pane();
-        root.setPrefSize(screenWidth, screenHeight);
-        root.getStyleClass().add("game-root");
-
-        platforms = new ArrayList<>();
-        pits = new ArrayList<>();
-
-        setupPlatforms();
-        setupGoal();
-    }
-
-    // Constructor mới - load từ database
+    /**
+     * Constructor - load từ database
+     */
     public GameView(int mapId) {
         root = new Pane();
         root.getStyleClass().add("game-root");
 
         platforms = new ArrayList<>();
         obstacles = new ArrayList<>();
+        pits = new ArrayList<>();
+        items = new ArrayList<>();
 
         // Load map data từ database
         loadMapFromDatabase(mapId);
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
+        // Update player ground level immediately
+        if (player != null) {
+            updatePlayerForCurrentMap();
+        }
     }
 
     /**
      * Load map data từ database và setup game view
      */
     private void loadMapFromDatabase(int mapId) {
+        System.out.println("\n=== LOADING MAP " + mapId + " ===");
+
+        // XÓA HẾT NỘI DUNG CŨ TRƯỚC KHI LOAD MỚI
+        root.getChildren().clear();
+        platforms.clear();
+        obstacles.clear();
+        pits.clear();
+        items.clear();
+
         currentMapData = MapDAO.loadMap(mapId);
 
         if (currentMapData == null) {
-            System.err.println("Failed to load map! Using default settings.");
+            System.err.println("FAILED TO LOAD MAP DATA!");
             Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
             screenWidth = screenBounds.getWidth();
             screenHeight = screenBounds.getHeight();
             groundLevel = screenHeight - 40;
-            setupPlatforms();
-            setupGoal();
             return;
         }
+
+        System.out.println("✓ MapData loaded: " + currentMapData.getMapName());
+        System.out.println("  Screen: " + currentMapData.getScreenWidth() + "x" + currentMapData.getScreenHeight());
+        System.out.println("  Platforms in data: " + currentMapData.getPlatforms().size());
+        System.out.println("  Hazards in data: " + currentMapData.getObstacles().size());
+        System.out.println("  Items in data: " + currentMapData.getItems().size());
+        System.out.println("  Enemies in data: " + currentMapData.getEnemies().size());
 
         // Set screen dimensions từ database
         screenWidth = currentMapData.getScreenWidth();
@@ -90,14 +84,12 @@ public class GameView {
         groundLevel = currentMapData.getGroundLevel();
 
         root.setPrefSize(screenWidth, screenHeight);
-
-        // Setup ground
-        Rectangle ground = new Rectangle(screenWidth, screenHeight - groundLevel);
-        ground.getStyleClass().add("platform");
-        ground.setY(groundLevel);
-        root.getChildren().add(ground);
+        System.out.println("✓ Root pane size set: " + screenWidth + "x" + screenHeight);
+        System.out.println("✓ Ground level: " + groundLevel);
 
         // Load platforms từ database
+        System.out.println("\n--- Loading Platforms ---");
+        int platformCount = 0;
         for (PlatformData pData : currentMapData.getPlatforms()) {
             Platform platform = new Platform(
                     pData.getX(),
@@ -105,46 +97,156 @@ public class GameView {
                     pData.getWidth(),
                     pData.getHeight()
             );
-            platforms.add(platform);
-            root.getChildren().add(platform.getShape());
-        }
 
-        // Load obstacles từ database
-        for (ObstacleData oData : currentMapData.getObstacles()) {
-            Rectangle obstacle = new Rectangle(oData.getWidth(), oData.getHeight());
-
-            // Set style class dựa trên type
-            switch (oData.getObstacleType()) {
-                case "pit":
-                    obstacle.getStyleClass().add("pit");
-                    break;
-                case "spike":
-                    obstacle.getStyleClass().add("spike");
-                    break;
-                case "wall":
-                    obstacle.getStyleClass().add("wall");
-                    break;
-                default:
-                    obstacle.getStyleClass().add("obstacle");
+            // Nếu là ground platform, thêm style class đặc biệt
+            if (pData.isGround()) {
+                platform.getShape().getStyleClass().clear();
+                platform.getShape().getStyleClass().add("platform");
+                System.out.println("  GROUND platform at (" + pData.getX() + ", " + pData.getY() + ") " +
+                        pData.getWidth() + "x" + pData.getHeight());
+            } else {
+                System.out.println("  Platform at (" + pData.getX() + ", " + pData.getY() + ") " +
+                        pData.getWidth() + "x" + pData.getHeight());
             }
 
-            obstacle.setX(oData.getX());
-            obstacle.setY(oData.getY());
-            obstacles.add(obstacle);
-            root.getChildren().add(obstacle);
+            platforms.add(platform);
+            root.getChildren().add(platform.getShape());
+            platformCount++;
         }
+        System.out.println("✓ Added " + platformCount + " platforms to scene");
 
-        // Setup goal từ database
-        goal = new Rectangle(
-                currentMapData.getGoalWidth(),
-                currentMapData.getGoalHeight()
-        );
-        goal.getStyleClass().add("goal");
-        goal.setX(currentMapData.getGoalX());
-        goal.setY(currentMapData.getGoalY());
-        root.getChildren().add(goal);
+        // Load hazards từ database
+        System.out.println("\n--- Loading Hazards ---");
+        int hazardCount = 0;
+        for (ObstacleData oData : currentMapData.getObstacles()) {
+            Rectangle hazard = new Rectangle(oData.getWidth(), oData.getHeight());
 
-        System.out.println("Map '" + currentMapData.getMapName() + "' loaded into GameView!");
+            // Set style class dựa trên type
+            String hazardType = oData.getObstacleType().toUpperCase();
+            switch (hazardType) {
+                case "PIT":
+                    hazard.getStyleClass().add("pit");
+                    pits.add(hazard);
+                    System.out.println("  PIT at (" + oData.getX() + ", " + oData.getY() + ")");
+                    break;
+                case "SPIKE":
+                    hazard.getStyleClass().add("spike");
+                    System.out.println("  SPIKE at (" + oData.getX() + ", " + oData.getY() + ")");
+                    break;
+                case "LAVA":
+                    hazard.getStyleClass().add("lava");
+                    System.out.println("  LAVA at (" + oData.getX() + ", " + oData.getY() + ")");
+                    break;
+                default:
+                    hazard.getStyleClass().add("obstacle");
+                    System.out.println("  OBSTACLE at (" + oData.getX() + ", " + oData.getY() + ")");
+            }
+
+            hazard.setX(oData.getX());
+            hazard.setY(oData.getY());
+            obstacles.add(hazard);
+            root.getChildren().add(hazard);
+            hazardCount++;
+        }
+        System.out.println("✓ Added " + hazardCount + " hazards to scene");
+
+        // Load items từ database
+        System.out.println("\n--- Loading Items ---");
+        int itemCount = 0;
+        for (ItemData iData : currentMapData.getItems()) {
+            // Convert item type từ database
+            String itemTypeStr = iData.getItemType();
+            ItemType itemType;
+
+            try {
+                // Nếu là BUFF, convert sang một loại buff cụ thể
+                if (itemTypeStr.equals("BUFF")) {
+                    itemType = ItemType.DASH_BOOST;
+                } else if (itemTypeStr.equals("ABILITY")) {
+                    itemType = ItemType.DOUBLE_JUMP;
+                } else {
+                    itemType = ItemType.valueOf(itemTypeStr);
+                }
+
+                Item item = new Item(
+                        iData.getX(),
+                        iData.getY(),
+                        itemType
+                );
+
+                // Đảm bảo item được activate
+                item.activate();
+                items.add(item);
+                root.getChildren().add(item.getShape());
+                itemCount++;
+
+                System.out.println("  Item: " + itemType + " at (" + iData.getX() + ", " + iData.getY() + ")");
+
+            } catch (IllegalArgumentException e) {
+                System.err.println("  ❌ Invalid item type: " + itemTypeStr);
+            }
+        }
+        System.out.println("✓ Added " + itemCount + " items to scene");
+
+        System.out.println("\n=== Map loaded successfully ===");
+        System.out.println("Total objects in scene: " + root.getChildren().size());
+        System.out.println("================================\n");
+
+        updatePlayerForCurrentMap();
+    }
+
+    /**
+     * Update player state for current map
+     * This fixes the "floating player" bug!
+     */
+    private void updatePlayerForCurrentMap() {
+        if (player == null) return;
+
+        System.out.println("\nUpdating player for current map...");
+
+        // Update ground level
+        player.setGroundLevel(groundLevel);
+        System.out.println("  Ground level set to: " + groundLevel);
+
+        // Update screen bounds
+        player.setScreenBounds(0, screenWidth, 0, screenHeight);
+        System.out.println("  Screen bounds: 0, " + screenWidth + ", 0, " + screenHeight);
+
+        // Reset velocity
+        player.setVelY(0);
+        System.out.println("  Velocity reset");
+
+        // Stop any movement/dash
+        player.setDashing(false);
+        System.out.println("  Dashing stopped");
+
+        System.out.println("Player updated for map!\n");
+    }
+
+    /**
+     * Reload map (for room transitions)
+     * Call this when changing rooms
+     */
+    public void reloadMap(int mapId) {
+        System.out.println("\nReloading map " + mapId + "...");
+        loadMapFromDatabase(mapId);
+    }
+
+    /**
+     * Transition to new map with spawn position
+     */
+    public void transitionToMap(int mapId, double spawnX, double spawnY) {
+        System.out.println("\nTransitioning to map " + mapId + " at (" + spawnX + ", " + spawnY + ")");
+
+        // Load new map
+        loadMapFromDatabase(mapId);
+
+        // Set player position
+        if (player != null) {
+            player.setX(spawnX);
+            player.setY(spawnY);
+            System.out.println("  Player spawned at: (" + spawnX + ", " + spawnY + ")");
+        }
     }
 
     /**
@@ -157,86 +259,34 @@ public class GameView {
         return new ArrayList<>();
     }
 
-    // Setup cũ cho backward compatibility
-    private void setupPlatforms() {
-        Rectangle ground = new Rectangle(screenWidth, 40);
-        ground.getStyleClass().add("platform");
-        ground.setY(groundLevel);
-        root.getChildren().add(ground);
-
-        // Tầng 1: Platforms thấp
-        Platform low1 = new Platform(500,   180, 150, 20);
-        Platform low2 = new Platform(600,   260, 150, 20);
-
-        // Tầng 2: Platforms trung bình
-        Platform mid1 = new Platform(550,   340, 150, 20);
-        Platform mid2 = new Platform(600,   420, 150, 20);
-
-        // Tầng 3: Platforms cao
-        Platform high1 = new Platform(800,   500, 150, 20);
-        Platform high2 = new Platform(750,   600, 150, 20);
-
-        // Thêm tất cả vào list
-        // Thêm tất cả vào list
-        platforms.add(low1);
-        platforms.add(low2);
-        platforms.add(mid1);
-        platforms.add(mid2);
-        platforms.add(high1);
-        platforms.add(high2);
-
-        for (Platform p : platforms) {
-            root.getChildren().add(p.getShape());
-        }
-
-        // Thêm obstacles
-        // Kích thước pit
-        double pitWidth = 80;
-        double pitHeight = 40; // hố sâu 40px
-
-        // Thêm obstacles
-        Rectangle pit1 = new Rectangle(pitWidth, pitHeight);
-        pit1.getStyleClass().add("pit");
-        pit1.setX(300); // vị trí ngang
-        pit1.setY(groundLevel); // đỉnh pit trùng mặt đất
-        root.getChildren().add(pit1);
-        pits.add(pit1);
-
-        // Pit 2
-        Rectangle pit2 = new Rectangle(100, 50);
-        pit2.getStyleClass().add("pit");
-        pit2.setX(600);
-        pit2.setY(groundLevel); // đỉnh pit trùng mặt đất
-        root.getChildren().add(pit2);
-        pits.add(pit2);
-
-    }
-
-
-    private void setupGoal() {
-        goal = new Rectangle(15, 100);
-        goal.getStyleClass().add("goal");
-        goal.setX(screenWidth - 50);
-        goal.setY(screenHeight - 400);
-        root.getChildren().add(goal);
-    }
-
     public void addNode(javafx.scene.Node node) {
-        root.getChildren().add(node);
+        if (!root.getChildren().contains(node)) {
+            root.getChildren().add(node);
+            System.out.println("Node added: " + node.getClass().getSimpleName());
+        }
     }
 
     public void removeNode(javafx.scene.Node node) {
         root.getChildren().remove(node);
     }
 
+    /**
+     * Reset tất cả items về trạng thái ban đầu
+     */
+    public void resetItems() {
+        for (Item item : items) {
+            item.activate();
+        }
+    }
+
+    // Getters
     public Pane getRoot() { return root; }
-    public Rectangle getGoal() { return goal; }
     public List<Platform> getPlatforms() { return platforms; }
     public List<Rectangle> getObstacles() { return obstacles; }
     public double getGroundLevel() { return groundLevel; }
     public double getScreenWidth() { return screenWidth; }
     public double getScreenHeight() { return screenHeight; }
     public MapData getCurrentMapData() { return currentMapData; }
-    public List<Rectangle> getPits() {return pits; }
-
+    public List<Rectangle> getPits() { return pits; }
+    public List<Item> getItems() { return items; }
 }
