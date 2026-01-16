@@ -178,10 +178,7 @@
 .item-jump {-fx-fill: #9C27B0;}
 
 .platform {
-    /*-fx-fill: gray;*/
-    -fx-fill: #8B4513;
-    -fx-stroke: #654321;
-    -fx-stroke-width: 2;
+    -fx-fill: url('image/platform.png');
 }
 
 .obstacle {
@@ -210,15 +207,11 @@
     -fx-stroke-width: 2;
 }
 
-.goal {
-    -fx-fill: gold;
-}
-
 /* ===== GAME VIEW ===== */
 .game-root {
     -fx-background-color: radial-gradient(
             radius 100%,
-            #0B0F1A,
-            #05070D
+            #7d6d49,
+            #a8e286
     );
 }
