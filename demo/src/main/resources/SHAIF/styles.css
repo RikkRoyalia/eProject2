@@ -211,7 +211,7 @@
 .game-root {
     -fx-background-color: radial-gradient(
             radius 100%,
-            #0B0F1A,
-            #05070D
+            #7d6d49,
+            #a8e286
     );
 }
