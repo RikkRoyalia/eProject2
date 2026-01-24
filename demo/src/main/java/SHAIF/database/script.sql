@@ -254,22 +254,27 @@ INSERT INTO save_points (map_id, x, y, name) VALUES
 -- HAZARDS
 -- ===============================
 INSERT INTO hazards (map_id, x, y, width, height, hazard_type) VALUES
+    (1, 990, 680, 200, 40, 'PIT'),
     (2, 300, 680, 80, 40, 'PIT'),
     (2, 600, 680, 100, 40, 'PIT');
 
 -- ===============================
 -- ENEMIES
 -- ===============================
-INSERT INTO enemies (map_id, x, y, enemy_type)
-VALUES (1, 600, 300, 'SHOOTER');
+INSERT INTO enemies (map_id, x, y, enemy_type) VALUES 
+(2, 600, 300, 'SHOOTER'),
+(2, 400, 300, 'PATROLLER');
 
 -- ===============================
 -- ITEMS
 -- ===============================
 INSERT INTO items (map_id, x, y, item_type, ability_id) VALUES
-    (1, 550, 170, 'HEALTH', NULL),
-    (1, 650, 250, 'HEALTH', NULL),
-    (1, 600, 250, 'ABILITY', 'double_jump');
+    (2, 550, 170, 'HEALTH', NULL),
+    (2, 650, 250, 'HEALTH', NULL),
+    (2, 150, 650, 'COIN', NULL),
+    (2, 180, 650, 'COIN', NULL),
+    (2, 210, 650, 'COIN', NULL),
+    (2, 600, 250, 'ABILITY', 'double_jump');
 
 -- ===============================
 -- ROOM CONNECTIONS (EDGE BASED)

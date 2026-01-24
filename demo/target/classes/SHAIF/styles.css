@@ -189,10 +189,29 @@
 }
 
 .pit {
-    /*-fx-fill: black;*/
-    -fx-fill: #000000;
-    -fx-stroke: #FF0000;
-    -fx-stroke-width: 2;
+    -fx-fill: url('image/lava.png');
+    /*-fx-fill: linear-gradient(*/
+    /*        to bottom,*/
+    /*        #FFFFFF 0%,*/
+    /*        #ffd516 12.5%,*/
+
+    /*        #ff9d03 25%,*/
+    /*        #e56200 37.5%,*/
+    /*        #ce4303 50%,*/
+    /*        #a33502 62.5%,*/
+
+    /*        #8e1100 75%,*/
+    /*        #680a01 87.5%,*/
+    /*        #3f0102 100%*/
+    /*);*/
+    -fx-effect: dropshadow(
+            gaussian,
+            #ff8000,
+            20,
+            0.6,
+            0,
+            0
+    );
 }
 
 .spike {
