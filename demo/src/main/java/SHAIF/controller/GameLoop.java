@@ -136,16 +136,8 @@ public class GameLoop {
         stop();
 
         // Save achievements và game data
-        int currentLevel = LevelManager.getInstance().getCurrentLevel();
-        achievementManager.checkAchievement("first_steps", currentLevel >= 1 ? 1 : 0);
-
         if (perfectRun) {
             achievementManager.checkAchievement("perfect_run", 1);
-        }
-
-        // Check level master
-        if (currentLevel >= 5) {
-            achievementManager.checkAchievement("level_master", 1);
         }
 
         // Update game data
@@ -153,16 +145,7 @@ public class GameLoop {
         gameData.addTotalScore(stats.getScore());
         gameData.addPlayTime((int) stats.getPlayTime());
 
-        // Unlock level tiếp theo khi hoàn thành level hiện tại
-        LevelManager levelManager = LevelManager.getInstance();
-        if (currentLevel < 5) {
-            levelManager.unlockLevel(currentLevel + 1);
-        }
-
         // Check unlocks dựa trên total score
-        levelManager.checkUnlocks(gameData.getTotalScore());
-        gameData.setLevelsUnlocked(levelManager.getHighestUnlockedLevel());
-        gameData.save();
 
         // Chạy UI thread
         javafx.application.Platform.runLater(() -> {
@@ -182,8 +165,7 @@ public class GameLoop {
             );
             alert.showAndWait();
 
-            // Next level hoặc quay về menu
-            LevelManager.getInstance().nextLevel();
+            // Quay về menu
             menuScreen.show();
             primaryStage.setScene(menuScreen.getScene());
         });
@@ -216,14 +198,6 @@ public class GameLoop {
                 bullet.deactivate(); // Deactivate sau khi damage
             }
         }
-
-        // Chạm đích
-//        if (player.getCurrentShape().getBoundsInParent()
-//                .intersects(gameView.getGoal().getBoundsInParent())) {
-//            gameWon = true;
-//            victory();
-//            return;
-//        }
 
         // Rơi vào pit
         for (Rectangle pit : gameView.getPits()) {

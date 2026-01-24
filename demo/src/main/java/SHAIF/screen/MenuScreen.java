@@ -39,11 +39,6 @@ public class MenuScreen {
         playButton.getStyleClass().add("menu-button");
         playButton.setOnAction(e -> onPlayClicked());
 
-        // Level Select Button
-        Button levelSelectButton = new Button("LEVEL SELECT");
-        levelSelectButton.getStyleClass().add("menu-button");
-        levelSelectButton.setOnAction(e -> onLevelSelectClicked());
-
         // Shop Button
         Button shopButton = new Button("SHOP");
         shopButton.getStyleClass().add("menu-button");
@@ -64,8 +59,7 @@ public class MenuScreen {
         exitButton.getStyleClass().add("exit-button");
         exitButton.setOnAction(e -> System.exit(0));
 
-        root.getChildren().addAll(title, subtitle, playButton, levelSelectButton,
-                shopButton, achievementsButton, settingsButton, exitButton);
+        root.getChildren().addAll(title, subtitle, playButton, shopButton, achievementsButton, settingsButton, exitButton);
 
         scene = new Scene(root, 800, 450);
 
@@ -83,12 +77,6 @@ public class MenuScreen {
     private void onSettingsClicked() {
         if (onSettingsCallback != null) {
             onSettingsCallback.run();
-        }
-    }
-
-    private void onLevelSelectClicked() {
-        if (onLevelSelectCallback != null) {
-            onLevelSelectCallback.run();
         }
     }
 
@@ -110,10 +98,6 @@ public class MenuScreen {
 
     public void setOnSettingsCallback(Runnable callback) {
         this.onSettingsCallback = callback;
-    }
-
-    public void setOnLevelSelectCallback(Runnable callback) {
-        this.onLevelSelectCallback = callback;
     }
 
     public void setOnShopCallback(Runnable callback) {

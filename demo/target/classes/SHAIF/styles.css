@@ -167,15 +167,30 @@
     -fx-effect: dropshadow(gaussian, #F9FF00, 12, 0.9, 0, 0);
 }
 
-.item {
-    -fx-effect: dropshadow(gaussian, white, 15, 0.8, 0, 0);
+.item-health {
+    -fx-fill: #ff0000;
+    -fx-effect: dropshadow(gaussian, #ff0000, 20, 0.5, 0, 0);
 }
-.item-health {-fx-fill: #E91E63;}
-.item-coin {-fx-fill: #FFD700;}
-.item-dash {-fx-fill: #FF6B00;}
-.item-shield {-fx-fill: #2196F3;}
-.item-speed {-fx-fill: #4CAF50;}
-.item-jump {-fx-fill: #9C27B0;}
+.item-coin {
+    -fx-fill: #FFD700;
+    -fx-effect: dropshadow(gaussian, #FFD700, 20, 0.5, 0, 0);
+}
+.item-dash {
+    -fx-fill: #FF6B00;
+    -fx-effect: dropshadow(gaussian, #FF6B00, 20, 0.5, 0, 0);
+}
+.item-shield {
+    -fx-fill: #00fff7;
+    -fx-effect: dropshadow(gaussian, #00fff7, 20, 0.5, 0, 0);
+}
+.item-speed {
+    -fx-fill: #00ff09;
+    -fx-effect: dropshadow(gaussian, #00ff09, 20, 0.5, 0, 0);
+}
+.item-jump {
+    -fx-fill: #ff00f1;
+    -fx-effect: dropshadow(gaussian, #ff00f1, 15, 0.8, 0, 0);
+}
 
 .platform {
     -fx-fill: url('image/platform.png');
@@ -190,20 +205,6 @@
 
 .pit {
     -fx-fill: url('image/lava.png');
-    /*-fx-fill: linear-gradient(*/
-    /*        to bottom,*/
-    /*        #FFFFFF 0%,*/
-    /*        #ffd516 12.5%,*/
-
-    /*        #ff9d03 25%,*/
-    /*        #e56200 37.5%,*/
-    /*        #ce4303 50%,*/
-    /*        #a33502 62.5%,*/
-
-    /*        #8e1100 75%,*/
-    /*        #680a01 87.5%,*/
-    /*        #3f0102 100%*/
-    /*);*/
     -fx-effect: dropshadow(
             gaussian,
             #ff8000,

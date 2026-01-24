@@ -262,19 +262,39 @@ INSERT INTO hazards (map_id, x, y, width, height, hazard_type) VALUES
 -- ENEMIES
 -- ===============================
 INSERT INTO enemies (map_id, x, y, enemy_type) VALUES 
-(2, 600, 300, 'SHOOTER'),
-(2, 400, 300, 'PATROLLER');
+(2, 870, 640, 'SHOOTER'),
+(2, 870, 640, 'PATROLLER');
 
 -- ===============================
 -- ITEMS
 -- ===============================
 INSERT INTO items (map_id, x, y, item_type, ability_id) VALUES
-    (2, 550, 170, 'HEALTH', NULL),
-    (2, 650, 250, 'HEALTH', NULL),
+    -- Attach to ground
+    (2, 1000, 650, 'HEALTH', NULL),
     (2, 150, 650, 'COIN', NULL),
     (2, 180, 650, 'COIN', NULL),
     (2, 210, 650, 'COIN', NULL),
-    (2, 600, 250, 'ABILITY', 'double_jump');
+    -- Middle
+    (2, 670, 480, 'COIN', NULL),
+    (2, 700, 480, 'COIN', NULL),
+    (2, 730, 480, 'COIN', NULL),
+    (2, 760, 480, 'COIN', NULL),
+    (2, 790, 480, 'COIN', NULL),
+    -- Attach to left edge
+        -- Between
+    (2, 55, 230, 'COIN', NULL),
+    (2, 85, 230, 'COIN', NULL),
+    (2, 115, 230, 'COIN', NULL),
+    (2, 55, 200, 'COIN', NULL),
+    (2, 85, 200, 'COIN', NULL),
+    (2, 115, 200, 'COIN', NULL),
+    (2, 55, 170, 'COIN', NULL),
+    (2, 85, 170, 'COIN', NULL),
+    (2, 115, 170, 'COIN', NULL),
+        -- Lower
+    (2, 200, 455, 'COIN', NULL),
+    (2, 360, 500, 'COIN', NULL),
+    (2, 60, 390, 'ABILITY', 'double_jump');
 
 -- ===============================
 -- ROOM CONNECTIONS (EDGE BASED)
