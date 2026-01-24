@@ -175,7 +175,7 @@ INSERT INTO platforms (map_id, x, y, width, height, platform_type) VALUES
     (2,  340, 140, 80, 30, 'STATIC'),
         -- Between
     (2,   0, 260, 1040, 50, 'STATIC'),
-    (2, 1040, 310,   20, 20, 'STATIC'),
+    (2, 1040, 350,   20, 20, 'STATIC'),
         -- Lower
     (2,   10, 420, 120, 30, 'STATIC'),
     (2,   140, 485, 120, 30, 'STATIC'),
