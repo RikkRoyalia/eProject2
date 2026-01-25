@@ -247,7 +247,7 @@ INSERT INTO platforms (map_id, x, y, width, height, platform_type) VALUES
 -- SAVE POINTS
 -- ===============================
 INSERT INTO save_points (map_id, x, y, name) VALUES
-    (1, 1100,580, 'default-savepoint'),
+    (1, 1100,560, 'default-savepoint'),
     (2, 500,640, 'dark-forest-savepoint');
 
 -- ===============================

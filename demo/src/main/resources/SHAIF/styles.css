@@ -125,12 +125,6 @@
     -fx-effect: dropshadow(gaussian, #34fa02, 35, 0.6, -7, 0);
 }
 
-.enemy {
-    -fx-fill: #9B5CFF;
-    -fx-effect: dropshadow(gaussian, #9B5CFF, 18, 0.7, 0, 0);
-}
-
-
 .player-damaged {
     /*-fx-fill: red;*/
     -fx-fill: #FF00FF;
@@ -139,27 +133,46 @@
 }
 
 .enemy-shooter {
-    -fx-fill: purple;
+    -fx-fill: red;
+    -fx-stroke: darkred;
+    -fx-stroke-width: 2;
+    -fx-opacity: 1.0;
 }
 
 .enemy-patroller {
-    -fx-fill: #8B4513;
+    -fx-fill: orange;
+    -fx-stroke: darkorange;
+    -fx-stroke-width: 2;
+    -fx-opacity: 1.0;
 }
 
 .enemy-jumper {
-    -fx-fill: #FF4500;
+    -fx-fill: yellow;
+    -fx-stroke: gold;
+    -fx-stroke-width: 2;
+    -fx-opacity: 1.0;
 }
 
 .enemy-chaser {
-    -fx-fill: #DC143C;
+    -fx-fill: purple;
+    -fx-stroke: darkviolet;
+    -fx-stroke-width: 2;
+    -fx-opacity: 1.0;
 }
 
 .enemy-boss {
-    -fx-fill: #8B0000;
+    -fx-fill: crimson;
+    -fx-stroke: darkred;
+    -fx-stroke-width: 3;
+    -fx-opacity: 1.0;
+    -fx-effect: dropshadow(gaussian, rgba(139, 0, 0, 0.8), 10, 0.5, 0, 0);
 }
 
 .enemy-defeated {
     -fx-fill: gray;
+    -fx-stroke: darkgray;
+    -fx-stroke-width: 1;
+    -fx-opacity: 0.3;
 }
 
 .bullet {
@@ -190,6 +203,10 @@
 .item-jump {
     -fx-fill: #ff00f1;
     -fx-effect: dropshadow(gaussian, #ff00f1, 15, 0.8, 0, 0);
+}
+
+.save-point-indicator {
+    -fx-fill: #ffffff;
 }
 
 .platform {
@@ -234,4 +251,8 @@
             #7d6d49,
             #a8e286
     );
+}
+/* Background should be at lowest layer */
+.background-layer {
+    /* No special styling needed, just ensure it's added first to scene */
 }

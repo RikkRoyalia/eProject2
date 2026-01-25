@@ -9,6 +9,7 @@ public class Enemy implements InteractiveObjects {
     private long lastShootTime;
     private final long shootInterval = 1_500_000_000L; // 1.5 giây
     private final EnemyType enemyType;
+    private Bullet bullet;
 
     // Movement for Patroller
     private double startX;
@@ -183,26 +184,38 @@ public class Enemy implements InteractiveObjects {
     // ===== Enemy specific methods =====
 
     public boolean shouldShoot(long currentTime) {
-        if (!active) return false;
+        if (!active || bullet == null) return false;
 
-        // Boss bắn nhanh hơn
         long interval = isBoss ? shootInterval / 2 : shootInterval;
 
-        // Jumper chỉ bắn khi ở trên không
         if (enemyType == EnemyType.JUMPER && onGround) {
             return false;
         }
 
-        // Patroller và Chaser không bắn
         if (enemyType == EnemyType.PATROLLER || enemyType == EnemyType.CHASER) {
             return false;
         }
 
         if (currentTime - lastShootTime > interval) {
             lastShootTime = currentTime;
+            bullet.shoot(getX(), getY() + 20);  // Auto-shoot
             return true;
         }
         return false;
+    }
+
+    public void updateWithShooting(long currentTime) {
+        update(); // Call existing update for movement
+
+        // Auto-shoot if should shoot
+        if (shouldShoot(currentTime) && bullet != null && !bullet.isActive()) {
+            bullet.shoot(getX(), getY() + 20);
+        }
+
+        // Update bullet
+        if (bullet != null) {
+            bullet.update();
+        }
     }
 
     public void defeat() {
@@ -218,6 +231,14 @@ public class Enemy implements InteractiveObjects {
 
     public EnemyType getEnemyType() {
         return enemyType;
+    }
+
+    public void setBullet(Bullet bullet) {
+        this.bullet = bullet;
+    }
+
+    public Bullet getBullet() {
+        return bullet;
     }
 
     public boolean isBoss() {

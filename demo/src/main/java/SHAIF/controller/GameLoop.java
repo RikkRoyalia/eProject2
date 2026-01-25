@@ -9,7 +9,9 @@ import javafx.geometry.Bounds;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class GameLoop {
 
@@ -17,8 +19,7 @@ public class GameLoop {
 
     private final GameView gameView;
     protected final Player player;
-    final Enemy enemy;
-    final Bullet bullet;
+    protected final List<Enemy> enemies;  // CHANGED: from single Enemy
     final DashController dashController;
     private final Stage primaryStage;
     private final MenuScreen menuScreen;
@@ -29,15 +30,15 @@ public class GameLoop {
     final GameData gameData;
     private boolean gameWon = false;
     boolean isPaused = false;
-    private boolean perfectRun = true; // Track for perfect run achievement
+    private boolean perfectRun = true;
 
-    public GameLoop(GameView gameView, Player player, Enemy enemy, Bullet bullet,
+    // CHANGED: Constructor now accepts List<Enemy>
+    public GameLoop(GameView gameView, Player player, List<Enemy> enemies,
                     DashController dashController, Stage primaryStage, MenuScreen menuScreen,
                     GameStats stats, GameHUD hud, ComboSystem comboSystem) {
         this.gameView = gameView;
         this.player = player;
-        this.enemy = enemy;
-        this.bullet = bullet;
+        this.enemies = enemies != null ? enemies : new ArrayList<>();
         this.dashController = dashController;
         this.primaryStage = primaryStage;
         this.menuScreen = menuScreen;
@@ -54,30 +55,24 @@ public class GameLoop {
             public void handle(long now) {
                 if (isPaused) return;
 
-                // Cập nhật game
+                // Update player
                 player.applyGravityWithPlatforms(gameView.getPlatforms(), gameView.getGroundLevel());
                 player.update();
                 resolveHorizontalCollisions();
                 dashController.update();
 
-                if (enemy.shouldShoot(now)) {
-                    bullet.shoot(enemy.getX(), enemy.getY() + 20);
+                // CHANGED: Update all enemies
+                for (Enemy enemy : enemies) {
+                    enemy.updateWithShooting(now);
                 }
-
-                enemy.update();
-                bullet.update();
 
                 // Update items
                 for (Item item : gameView.getItems()) {
                     item.update();
                 }
 
-                // Update HUD
                 hud.update();
-
-                // Check achievements
                 checkAchievements();
-
                 checkCollisions();
             }
         };
@@ -99,19 +94,15 @@ public class GameLoop {
     }
 
     private void gameOver() {
-        // Dừng vòng lặp game
         stop();
 
-        // Update game data
         gameData.setHighScore(stats.getScore());
         gameData.addTotalScore(stats.getScore());
         gameData.addPlayTime((int) stats.getPlayTime());
         gameData.incrementDeaths();
         gameData.save();
 
-        // Chạy UI thread
         javafx.application.Platform.runLater(() -> {
-            // Hiển thị thông báo
             javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                     javafx.scene.control.Alert.AlertType.INFORMATION
             );
@@ -125,31 +116,23 @@ public class GameLoop {
             );
             alert.showAndWait();
 
-            // Quay về menu
             menuScreen.show();
             primaryStage.setScene(menuScreen.getScene());
         });
     }
 
     private void victory() {
-        // Dừng vòng lặp game
         stop();
 
-        // Save achievements và game data
         if (perfectRun) {
             achievementManager.checkAchievement("perfect_run", 1);
         }
 
-        // Update game data
         gameData.setHighScore(stats.getScore());
         gameData.addTotalScore(stats.getScore());
         gameData.addPlayTime((int) stats.getPlayTime());
 
-        // Check unlocks dựa trên total score
-
-        // Chạy UI thread
         javafx.application.Platform.runLater(() -> {
-            // Hiển thị thông báo
             javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                     javafx.scene.control.Alert.AlertType.INFORMATION
             );
@@ -165,41 +148,42 @@ public class GameLoop {
             );
             alert.showAndWait();
 
-            // Quay về menu
             menuScreen.show();
             primaryStage.setScene(menuScreen.getScene());
         });
     }
 
     protected void checkCollisions() {
-        // Player dash vào enemy (dùng interface method)
-        if (dashController.checkCollision(enemy) && enemy.isActive()) {
-            enemy.defeat();
-            stats.killEnemy();
-            gameData.incrementEnemiesKilled();
+        // CHANGED: Check all enemies
+        for (Enemy enemy : enemies) {
+            // Player dash into enemy
+            if (dashController.checkCollision(enemy) && enemy.isActive()) {
+                enemy.defeat();
+                stats.killEnemy();
+                gameData.incrementEnemiesKilled();
 
-            if (enemy.isBoss()) {
-                achievementManager.checkAchievement("boss_slayer", 1);
-            } else {
-                achievementManager.progressAchievement("dash_king", 1);
+                if (enemy.isBoss()) {
+                    achievementManager.checkAchievement("boss_slayer", 1);
+                } else {
+                    achievementManager.progressAchievement("dash_king", 1);
+                }
+
+                dashController.stopDash();
             }
 
-            dashController.stopDash();
-        }
-
-        // Bullet trúng player (dùng interface method)
-        if (bullet.intersects(player.getCurrentShape()) && bullet.isActive()) {
-            if (player.getCurrentForm() == FormType.SQUARE) {
-                // Square chặn đạn
-                bullet.deactivate();
-            } else {
-                // Nhận damage
-                player.takeDamage();
-                bullet.deactivate(); // Deactivate sau khi damage
+            // CHANGED: Check enemy's bullet
+            Bullet bullet = enemy.getBullet();
+            if (bullet != null && bullet.intersects(player.getCurrentShape()) && bullet.isActive()) {
+                if (player.getCurrentForm() == FormType.SQUARE) {
+                    bullet.deactivate();
+                } else {
+                    player.takeDamage();
+                    bullet.deactivate();
+                }
             }
         }
 
-        // Rơi vào pit
+        // Pit collision
         for (Rectangle pit : gameView.getPits()) {
             double px = player.getX();
             double py = player.getY();
@@ -212,7 +196,7 @@ public class GameLoop {
             }
         }
 
-        // Player thu thập items
+        // Item collection
         Iterator<Item> itemIterator = gameView.getItems().iterator();
         while (itemIterator.hasNext()) {
             Item item = itemIterator.next();
@@ -222,7 +206,6 @@ public class GameLoop {
             }
         }
 
-        // Bị trúng đạn quá số lần
         if (player.isDead()) {
             gameOver();
             return;
@@ -239,16 +222,16 @@ public class GameLoop {
                 player.heal();
                 break;
             case DASH_BOOST:
-                player.activateDashBoost(15); // 15 giây
+                player.activateDashBoost(15);
                 break;
             case SHIELD:
-                player.activateShield(10); // 10 giây
+                player.activateShield(10);
                 break;
             case SPEED_BOOST:
-                player.activateSpeedBoost(10); // 10 giây
+                player.activateSpeedBoost(10);
                 break;
             case DOUBLE_JUMP:
-                player.activateDoubleJump(); // Permanent
+                player.activateDoubleJump();
                 break;
             case COIN:
                 UpgradeShop.getInstance().addCoins(10);
@@ -259,69 +242,95 @@ public class GameLoop {
     }
 
     void checkAchievements() {
-        // Check perfect run
         if (player.getHitCount() > 0) {
             perfectRun = false;
         }
 
-        // Check speed demon (under 60 seconds)
         if (stats.getPlayTime() < 60 && gameWon) {
             achievementManager.checkAchievement("speed_demon", 1);
         }
 
-        // Check survivor (5 minutes = 300 seconds)
         if (stats.getPlayTime() >= 300) {
             achievementManager.checkAchievement("survivor", 1);
         }
     }
 
     /**
-     * Xử lý va chạm ngang với tường/obstacle để player không đi xuyên wall
+     * IMPROVED: Horizontal collision with vertical position check
      */
     protected void resolveHorizontalCollisions() {
+        if (player.isDashing()) return;
+
         Bounds playerBounds = player.getCurrentShape().getBoundsInParent();
-        double playerCenterX = player.getX();
+        double playerX = player.getX();
+        double playerY = player.getY();
+        double playerBottom = playerY + player.getHeight();
         double halfWidth = player.getWidth() / 2.0;
 
-        // 1) Va chạm với obstacles (tường, spike, lava, ... trừ PIT)
+        int velocityX = 0;
+        if (player.isMovingLeft()) velocityX = -1;
+        if (player.isMovingRight()) velocityX = 1;
+
+        if (velocityX == 0) return;
+
+        // Check obstacles
         for (Rectangle obstacle : gameView.getObstacles()) {
-            // Bỏ qua PIT vì đã xử lý bằng logic rơi pit riêng
             if (obstacle.getStyleClass().contains("pit")) continue;
 
-            Bounds obstacleBounds = obstacle.getBoundsInParent();
-            if (playerBounds.intersects(obstacleBounds)) {
-                double obstacleLeft = obstacle.getX();
-                double obstacleRight = obstacle.getX() + obstacle.getWidth();
+            Bounds obsBounds = obstacle.getBoundsInParent();
+            if (!playerBounds.intersects(obsBounds)) continue;
 
-                // Nếu player ở bên trái obstacle -> chặn bên trái
-                if (playerCenterX < obstacleLeft) {
-                    player.setX(obstacleLeft - halfWidth - 0.5);
-                } else if (playerCenterX > obstacleRight) {
-                    // Nếu player ở bên phải obstacle -> chặn bên phải
-                    player.setX(obstacleRight + halfWidth + 0.5);
-                }
+            double obsLeft = obstacle.getX();
+            double obsRight = obstacle.getX() + obstacle.getWidth();
+            double obsTop = obstacle.getY();
 
-                // Cập nhật lại bounds sau khi dịch
-                playerBounds = player.getCurrentShape().getBoundsInParent();
+            boolean inVerticalRange = playerBottom > obsTop + 5;
+
+            if (!inVerticalRange) {
+                continue;
+            }
+
+            if (velocityX > 0 && playerX < obsLeft) {
+                player.setX(obsLeft - halfWidth - 1);
+                player.stopMovingRight();
+            }
+            else if (velocityX < 0 && playerX > obsRight) {
+                player.setX(obsRight + halfWidth + 1);
+                player.stopMovingLeft();
             }
         }
 
-        // 2) Va chạm ngang với platform (mép bên của platform cũng là tường)
+        // Check platforms
         for (Platform platform : gameView.getPlatforms()) {
-            Rectangle platShape = platform.getShape();
-            Bounds platBounds = platShape.getBoundsInParent();
+            Bounds platBounds = platform.getShape().getBoundsInParent();
+            if (!playerBounds.intersects(platBounds)) continue;
 
-            if (playerBounds.intersects(platBounds)) {
-                double platLeft = platform.getLeft();
-                double platRight = platform.getRight();
+            double platTop = platform.getTop();
+            double platBottom = platform.getBottom();
+            double platLeft = platform.getLeft();
+            double platRight = platform.getRight();
 
-                if (playerCenterX < platLeft) {
-                    player.setX(platLeft - halfWidth - 0.5);
-                } else if (playerCenterX > platRight) {
-                    player.setX(platRight + halfWidth + 0.5);
-                }
+            if (Math.abs(playerBottom - platTop) < 5 && player.isOnGround()) {
+                continue;
+            }
 
-                playerBounds = player.getCurrentShape().getBoundsInParent();
+            boolean playerAbovePlatform = playerBottom <= platTop + 5;
+            if (playerAbovePlatform) {
+                continue;
+            }
+
+            boolean playerBelowPlatform = playerY >= platBottom - 5;
+            if (playerBelowPlatform) {
+                continue;
+            }
+
+            if (velocityX > 0 && playerX < platLeft) {
+                player.setX(platLeft - halfWidth - 1);
+                player.stopMovingRight();
+            }
+            else if (velocityX < 0 && playerX > platRight) {
+                player.setX(platRight + halfWidth + 1);
+                player.stopMovingLeft();
             }
         }
     }

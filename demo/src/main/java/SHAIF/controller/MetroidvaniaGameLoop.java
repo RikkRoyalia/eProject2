@@ -1,5 +1,6 @@
 package SHAIF.controller;
 
+import SHAIF.database.MetroidvaniaDAO;
 import SHAIF.model.*;
 import SHAIF.screen.MenuScreen;
 import SHAIF.view.GameHUD;
@@ -15,13 +16,6 @@ import javafx.util.Duration;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * FIXED MetroidvaniaGameLoop
- * Key fixes:
- * 1. Properly reload room content
- * 2. Update player state after transition
- * 3. Handle GameView player reference
- */
 public class MetroidvaniaGameLoop extends GameLoop {
 
     private final Minimap minimap;
@@ -43,14 +37,14 @@ public class MetroidvaniaGameLoop extends GameLoop {
     private Rectangle fadeOverlay;
     private Pane rootPane;
 
-    public MetroidvaniaGameLoop(GameView gameView, Player player, Enemy enemy,
-                                Bullet bullet, DashController dashController,
+    public MetroidvaniaGameLoop(GameView gameView, Player player, List<Enemy> enemies,
+                                DashController dashController,
                                 Stage primaryStage, MenuScreen menuScreen,
                                 GameStats stats, GameHUD hud, ComboSystem comboSystem,
                                 Minimap minimap, WorldMap worldMap,
                                 AbilityManager abilityManager,
                                 Pane rootPane) {
-        super(gameView, player, enemy, bullet, dashController, primaryStage,
+        super(gameView, player, enemies, dashController, primaryStage,
                 menuScreen, stats, hud, comboSystem);
 
         this.minimap = minimap;
@@ -88,8 +82,44 @@ public class MetroidvaniaGameLoop extends GameLoop {
 
         Room currentRoom = worldMap.getCurrentRoom();
         if (currentRoom != null) {
-            // TODO: Load from database
+            // LOAD ABILITY PICKUPS
+            abilityPickups = MetroidvaniaDAO.loadAbilityPickups(currentRoom.getMapId());
+
+            // FIX: LOAD SAVE POINTS
+            savePoints = MetroidvaniaDAO.loadSavePoints(currentRoom.getMapId());
+
+            System.out.println("Loaded " + abilityPickups.size() + " ability pickups");
+            System.out.println("Loaded " + savePoints.size() + " save points");
+
+            // ADD SAVE POINT VISUAL INDICATORS
+            for (SavePoint savePoint : savePoints) {
+                addSavePointVisual(savePoint);
+            }
         }
+    }
+
+    // Helper để hiển thị save point
+    private void addSavePointVisual(SavePoint savePoint) {
+        // Tạo visual indicator (torch, checkpoint flag, etc.)
+        javafx.scene.shape.Circle indicator = new javafx.scene.shape.Circle(
+                savePoint.getX(),
+                savePoint.getY(),
+                15
+        );
+        indicator.getStyleClass().add("save-point-indicator");
+        gameView.addNode(indicator);
+
+        // Optional: Add pulsing animation
+        javafx.animation.FadeTransition pulse =
+                new javafx.animation.FadeTransition(
+                        javafx.util.Duration.seconds(1),
+                        indicator
+                );
+        pulse.setFromValue(0.3);
+        pulse.setToValue(1.0);
+        pulse.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        pulse.setAutoReverse(true);
+        pulse.play();
     }
 
     @Override
@@ -115,14 +145,9 @@ public class MetroidvaniaGameLoop extends GameLoop {
         resolveHorizontalCollisions();
         dashController.update();
 
-        if (enemy != null && enemy.shouldShoot(System.nanoTime())) {
-            bullet.shoot(enemy.getX(), enemy.getY() + 20);
+        for (Enemy enemy : enemies) {
+            enemy.updateWithShooting(System.nanoTime());
         }
-        if (enemy != null) {
-            enemy.update();
-        }
-
-        bullet.update();
 
         for (Item item : gameView.getItems()) {
             item.update();
@@ -266,15 +291,56 @@ public class MetroidvaniaGameLoop extends GameLoop {
         // CRITICAL: Set player reference in new GameView
         gameView.setPlayer(player);
 
-        // Add GameView root
+        // Add GameView root FIRST (bottom layer)
         rootPane.getChildren().add(gameView.getRoot());
 
-        // Re-add player shape
-        if (!rootPane.getChildren().contains(player.getCurrentShape())) {
-            rootPane.getChildren().add(player.getCurrentShape());
+        // CREATE ENEMIES - Add to GameView, NOT rootPane!
+        enemies.clear();
+
+        List<EnemyData> enemiesData = gameView.getEnemiesData();
+
+        if (!enemiesData.isEmpty()) {
+            System.out.println("\n--- Creating Enemies ---");
+
+            for (EnemyData enemyData : enemiesData) {
+                try {
+                    EnemyType type = EnemyType.valueOf(enemyData.getEnemyType());
+                    Enemy enemy = new Enemy(
+                            enemyData.getX(),
+                            enemyData.getY(),
+                            type
+                    );
+                    enemy.setTargetPlayer(player);
+
+                    Bullet enemyBullet = new Bullet();
+                    enemy.setBullet(enemyBullet);
+
+                    enemies.add(enemy);
+
+                    // ✅ ADD TO GAMEVIEW (inside the game pane)
+                    gameView.addNode(enemy.getShape());
+                    gameView.addNode(enemyBullet.getShape());
+
+                    // Force visibility
+                    enemy.getShape().setVisible(true);
+                    enemy.getShape().setOpacity(1.0);
+
+                    System.out.println("  Enemy: " + type +
+                            " at (" + enemyData.getX() + ", " + enemyData.getY() + ")");
+                } catch (IllegalArgumentException e) {
+                    System.err.println("  Invalid enemy type: " + enemyData.getEnemyType());
+                }
+            }
+
+            System.out.println("✓ Created " + enemies.size() + " enemies");
         }
 
-        // Re-add HUD
+        // Add player shape to GameView (NOT rootPane)
+        if (!gameView.getRoot().getChildren().contains(player.getCurrentShape())) {
+            gameView.addNode(player.getCurrentShape());
+        }
+
+        // Re-add HUD (on top of game)
         if (!rootPane.getChildren().contains(hud.getRoot())) {
             rootPane.getChildren().add(hud.getRoot());
         }
@@ -300,10 +366,10 @@ public class MetroidvaniaGameLoop extends GameLoop {
         );
 
         System.out.println("✓ Room reloaded");
-        System.out.println("  Scene children: " + rootPane.getChildren().size());
+        System.out.println("  GameView children: " + gameView.getRoot().getChildren().size());
+        System.out.println("  RootPane children: " + rootPane.getChildren().size());
         System.out.println("  Platforms: " + gameView.getPlatforms().size());
-        System.out.println("  Ground level: " + gameView.getGroundLevel());
-        System.out.println("  Player at: (" + player.getX() + ", " + player.getY() + ")");
+        System.out.println("  Enemies: " + enemies.size());
         System.out.println("----------------------\n");
     }
 
@@ -336,9 +402,42 @@ public class MetroidvaniaGameLoop extends GameLoop {
             );
 
             if (distance < 40 && !savePoint.isActivated()) {
-                showSavePrompt(savePoint);
+                // AUTO-ACTIVATE (không cần confirm)
+                savePoint.interact();
+
+                SaveData data = createSaveData();
+                data.setLastSavePointRoom(savePoint.getRoomId());
+                data.setLastSavePointX(savePoint.getX());
+                data.setLastSavePointY(savePoint.getY());
+                MetroidvaniaSaveSystem.saveGame(data);
+
+                // Show notification
+                showSaveNotification("Progress Saved!");
+
+                System.out.println("✓ Auto-saved at checkpoint: " + savePoint.getRoomId());
             }
         }
+    }
+
+    private void showSaveNotification(String message) {
+        javafx.scene.text.Text notification = new javafx.scene.text.Text(message);
+        notification.setFill(javafx.scene.paint.Color.LIME);
+        notification.setFont(javafx.scene.text.Font.font("Arial", 20));
+        notification.setX(640 - 50);
+        notification.setY(50);
+
+        rootPane.getChildren().add(notification);
+
+        // Fade out after 2 seconds
+        javafx.animation.FadeTransition fade =
+                new javafx.animation.FadeTransition(
+                        javafx.util.Duration.seconds(2),
+                        notification
+                );
+        fade.setFromValue(1.0);
+        fade.setToValue(0.0);
+        fade.setOnFinished(e -> rootPane.getChildren().remove(notification));
+        fade.play();
     }
 
     private void autoSave() {
@@ -499,30 +598,34 @@ public class MetroidvaniaGameLoop extends GameLoop {
 
     // Original collision methods
     private void checkPlayerEnemyCollision() {
-        if (enemy == null) return;
+        for (Enemy enemy : enemies) {
+            if (dashController.checkCollision(enemy) && enemy.isActive()) {
+                enemy.defeat();
+                stats.killEnemy();
+                gameData.incrementEnemiesKilled();
 
-        if (dashController.checkCollision(enemy) && enemy.isActive()) {
-            enemy.defeat();
-            stats.killEnemy();
-            gameData.incrementEnemiesKilled();
+                if (enemy.isBoss()) {
+                    achievementManager.checkAchievement("boss_slayer", 1);
+                } else {
+                    achievementManager.progressAchievement("dash_king", 1);
+                }
 
-            if (enemy.isBoss()) {
-                achievementManager.checkAchievement("boss_slayer", 1);
-            } else {
-                achievementManager.progressAchievement("dash_king", 1);
+                dashController.stopDash();
+                break; // Stop after hitting one enemy
             }
-
-            dashController.stopDash();
         }
     }
 
     private void checkBulletPlayerCollision() {
-        if (bullet.intersects(player.getCurrentShape()) && bullet.isActive()) {
-            if (player.getCurrentForm() == FormType.SQUARE) {
-                bullet.deactivate();
-            } else {
-                player.takeDamage();
-                bullet.deactivate();
+        for (Enemy enemy : enemies) {
+            Bullet bullet = enemy.getBullet();
+            if (bullet != null && bullet.intersects(player.getCurrentShape()) && bullet.isActive()) {
+                if (player.getCurrentForm() == FormType.SQUARE) {
+                    bullet.deactivate();
+                } else {
+                    player.takeDamage();
+                    bullet.deactivate();
+                }
             }
         }
     }

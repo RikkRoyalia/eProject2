@@ -248,16 +248,21 @@ public class Main extends Application {
                     type
             );
             enemy.setTargetPlayer(player);
+
+            // Give each enemy its own bullet
+            Bullet enemyBullet = new Bullet();
+            enemy.setBullet(enemyBullet);
+
             enemies.add(enemy);
             gameView.addNode(enemy.getShape());
-        }
+            gameView.addNode(enemyBullet.getShape());
 
-        Enemy primaryEnemy = enemies.isEmpty() ? null : enemies.get(0);
-        Bullet bullet = new Bullet();
+            System.out.println("  Enemy " + enemies.size() + ": " + type +
+                    " at (" + enemyData.getX() + ", " + enemyData.getY() + ")");
+        }
 
         // Add shapes to view
         gameView.addNode(player.getCurrentShape());
-        gameView.addNode(bullet.getShape());
 
         // Apply upgrades
         applyUpgradesToPlayer(player);
@@ -281,9 +286,9 @@ public class Main extends Application {
         ComboSystem comboSystem = new ComboSystem();
         keyInput.setComboSystem(comboSystem);
 
-        // Initialize MetroidvaniaGameLoop
+        // Initialize MetroidvaniaGameLoop (NO MORE SINGLE ENEMY/BULLET!)
         MetroidvaniaGameLoop gameLoop = new MetroidvaniaGameLoop(
-                gameView, player, primaryEnemy, bullet, dashController,
+                gameView, player, enemies, dashController,  // ← Pass enemy LIST
                 primaryStage, menuScreen, stats, hud, comboSystem,
                 minimap, worldMap, abilityManager, gameRoot
         );
