@@ -100,9 +100,7 @@ public class AbilityManager {
         ));
     }
 
-    /**
-     * Mở khóa ability mới
-     */
+
     public void unlockAbility(String abilityId) {
         if (allAbilities.containsKey(abilityId)) {
             unlockedAbilities.add(abilityId);

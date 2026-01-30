@@ -32,12 +32,6 @@ public class MapDAO {
                 mapData.setScreenWidth(mapRs.getDouble("screen_width"));
                 mapData.setScreenHeight(mapRs.getDouble("screen_height"));
 
-                // Set default goal nếu không có trong DB
-//                mapData.setGoalX(1200);
-//                mapData.setGoalY(600);
-//                mapData.setGoalWidth(50);
-//                mapData.setGoalHeight(100);
-
                 System.out.println("✓ Map info loaded: " + mapData.getMapName());
                 System.out.println("  Screen: " + mapData.getScreenWidth() + "x" + mapData.getScreenHeight());
             } else {

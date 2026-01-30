@@ -1,8 +1,5 @@
 package SHAIF.controller;
 
-/**
- * Ability - Một ability/power cụ thể
- */
 class Ability {
     private String id;
     private String name;

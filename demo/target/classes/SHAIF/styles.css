@@ -126,10 +126,20 @@
 }
 
 .player-damaged {
-    /*-fx-fill: red;*/
-    -fx-fill: #FF00FF;
-    -fx-stroke: #AA00AA;
-    -fx-stroke-width: 3;
+    -fx-fill: radial-gradient(
+            center 30% 30%,
+            radius 60%,
+            #FFFFFF 0%,
+            #FFF2F2 20%,
+            #FFD6D6 40%,
+            #FFB3B3 60%,
+            #FF9999 80%,
+            #E57373 100%
+    );
+}
+
+.player-invincible {
+    -fx-opacity: 0.5;
 }
 
 .enemy-shooter {
@@ -233,15 +243,19 @@
 }
 
 .spike {
-    -fx-fill: #888888;
-    -fx-stroke: #FF0000;
-    -fx-stroke-width: 2;
+    -fx-fill: url('image/spike.png');
 }
 
 .lava {
-    -fx-fill: #FF4500;
-    -fx-stroke: #FF0000;
-    -fx-stroke-width: 2;
+    -fx-fill: url('image/acid.png');
+    -fx-effect: dropshadow(
+            gaussian,
+            #c8ff00,
+            20,
+            0.6,
+            0,
+            0
+    );
 }
 
 /* ===== GAME VIEW ===== */

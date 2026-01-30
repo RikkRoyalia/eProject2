@@ -158,7 +158,7 @@ public class MetroidvaniaGameLoop extends GameLoop {
     protected void checkCollisions() {
         checkPlayerEnemyCollision();
         checkBulletPlayerCollision();
-        checkPitCollision();
+        checkHazardCollision();
         checkItemCollection();
 
         // Metroidvania-specific
@@ -191,7 +191,7 @@ public class MetroidvaniaGameLoop extends GameLoop {
                 }
             }
 
-            System.out.println("🚪 Transitioning to: " + targetRoom.getName());
+            System.out.println("Transitioning to: " + targetRoom.getName());
             initiateRoomTransition(transition);
         }
     }
@@ -227,9 +227,6 @@ public class MetroidvaniaGameLoop extends GameLoop {
         fadeOut.play();
     }
 
-    /**
-     * FIX: Complete room transition - properly reload everything
-     */
     private void completeRoomTransition() {
         System.out.println("\n=== Completing Room Transition ===");
 
@@ -271,9 +268,6 @@ public class MetroidvaniaGameLoop extends GameLoop {
         System.out.println("Entered: " + newRoom.getName());
     }
 
-    /**
-     * FIX: Properly reload current room
-     */
     private void reloadCurrentRoom() {
         System.out.println("\n--- Reloading Room ---");
 
@@ -317,7 +311,7 @@ public class MetroidvaniaGameLoop extends GameLoop {
 
                     enemies.add(enemy);
 
-                    // ✅ ADD TO GAMEVIEW (inside the game pane)
+                    // ADD TO GAMEVIEW (inside the game pane)
                     gameView.addNode(enemy.getShape());
                     gameView.addNode(enemyBullet.getShape());
 
@@ -365,7 +359,7 @@ public class MetroidvaniaGameLoop extends GameLoop {
                 gameView.getScreenHeight()
         );
 
-        System.out.println("✓ Room reloaded");
+        System.out.println(" Room reloaded");
         System.out.println("  GameView children: " + gameView.getRoot().getChildren().size());
         System.out.println("  RootPane children: " + rootPane.getChildren().size());
         System.out.println("  Platforms: " + gameView.getPlatforms().size());
@@ -414,7 +408,7 @@ public class MetroidvaniaGameLoop extends GameLoop {
                 // Show notification
                 showSaveNotification("Progress Saved!");
 
-                System.out.println("✓ Auto-saved at checkpoint: " + savePoint.getRoomId());
+                System.out.println(" Auto-saved at checkpoint: " + savePoint.getRoomId());
             }
         }
     }
@@ -443,7 +437,7 @@ public class MetroidvaniaGameLoop extends GameLoop {
     private void autoSave() {
         SaveData data = createSaveData();
         MetroidvaniaSaveSystem.saveGame(data);
-        System.out.println("💾 Game auto-saved");
+        System.out.println("Game auto-saved");
     }
 
     private SaveData createSaveData() {
@@ -512,7 +506,7 @@ public class MetroidvaniaGameLoop extends GameLoop {
                 }
             }
 
-            double spawnX = 100;
+            double spawnX = 640;
             double spawnY = 600;
 
             if (startRoom != null) {
@@ -529,7 +523,7 @@ public class MetroidvaniaGameLoop extends GameLoop {
                 // Trường hợp rất hiếm: worldMap chưa có room nào
                 player.setX(spawnX);
                 player.setY(spawnY);
-                System.err.println("WorldMap has no rooms, respawning at default (100, 600)");
+                System.err.println("WorldMap has no rooms, respawning at default (640, 600)");
             }
         }
 
@@ -613,6 +607,15 @@ public class MetroidvaniaGameLoop extends GameLoop {
                 dashController.stopDash();
                 break; // Stop after hitting one enemy
             }
+            // Contact damage
+            if (!player.isDashing() && enemy.isActive() && !player.isInvincible()) {
+                if (enemy.intersects(player.getCurrentShape())) {
+                    player.takeDamage();
+                    player.applyKnockback(enemy.getX(), enemy.getKnockbackForce());
+                    System.out.println("Player hit by enemy contact!");
+                    break; // Only one hit per frame
+                }
+            }
         }
     }
 
@@ -630,14 +633,16 @@ public class MetroidvaniaGameLoop extends GameLoop {
         }
     }
 
-    private void checkPitCollision() {
-        for (Rectangle pit : gameView.getPits()) {
+    private void checkHazardCollision() {
+        javafx.geometry.Bounds playerBounds = player.getCurrentShape().getBoundsInParent();
+
+        for (Rectangle hazard : gameView.getObstacles()) {
             double px = player.getX();
             double py = player.getY();
             double ph = player.getHeight();
 
-            if (px >= pit.getX() && px <= pit.getX() + pit.getWidth() &&
-                    py + ph >= pit.getY()) {
+            if (px >= hazard.getX() && px <= hazard.getX() + hazard.getWidth() &&
+                    py + ph >= hazard.getY()) {
                 handleDeath();
                 return;
             }

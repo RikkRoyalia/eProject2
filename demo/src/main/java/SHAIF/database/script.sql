@@ -248,22 +248,48 @@ INSERT INTO platforms (map_id, x, y, width, height, platform_type) VALUES
 -- ===============================
 INSERT INTO save_points (map_id, x, y, name) VALUES
     (1, 1100,560, 'default-savepoint'),
-    (2, 500,640, 'dark-forest-savepoint');
+    (2, 500,640, 'dark-forest-savepoint'),
+    (3, 80, 180, 'underground-cave-savepoint');
 
 -- ===============================
 -- HAZARDS
 -- ===============================
 INSERT INTO hazards (map_id, x, y, width, height, hazard_type) VALUES
     (1, 990, 680, 200, 40, 'PIT'),
+    (1,0, 680, 250, 40, 'LAVA'),
+
     (2, 300, 680, 80, 40, 'PIT'),
-    (2, 600, 680, 100, 40, 'PIT');
+    (2, 600, 680, 100, 40, 'PIT'),
+
+    (3, 10, 410, 120, 40, 'LAVA'),
+
+    (3, 110, 650, 30, 30, 'SPIKE'),
+    (3, 140, 650, 30, 30, 'SPIKE'),
+    (3, 170, 650, 30, 30, 'SPIKE'),
+    (3, 200, 650, 30, 30, 'SPIKE'),
+
+    (3, 300, 650, 30, 30, 'SPIKE'),
+    (3, 330, 650, 30, 30, 'SPIKE'),
+    (3, 360, 650, 30, 30, 'SPIKE'),
+    (3, 390, 650, 30, 30, 'SPIKE'),
+    (3, 420, 650, 30, 30, 'SPIKE'),
+
+    (3, 600, 650, 30, 30, 'SPIKE'),
+    (3, 630, 650, 30, 30, 'SPIKE'),
+    (3, 660, 650, 30, 30, 'SPIKE'),
+    (3, 690, 650, 30, 30, 'SPIKE'),
+    (3, 720, 650, 30, 30, 'SPIKE');
 
 -- ===============================
 -- ENEMIES
 -- ===============================
 INSERT INTO enemies (map_id, x, y, enemy_type) VALUES 
 (2, 870, 640, 'SHOOTER'),
-(2, 870, 640, 'PATROLLER');
+(2, 480, 470, 'PATROLLER'),
+(2, 80, 220, 'CHASER'),
+
+(3, 1240, 260, 'SHOOTER'),
+(3, 590, 280, 'JUMPER');
 
 -- ===============================
 -- ITEMS
@@ -294,7 +320,28 @@ INSERT INTO items (map_id, x, y, item_type, ability_id) VALUES
         -- Lower
     (2, 200, 455, 'COIN', NULL),
     (2, 360, 500, 'COIN', NULL),
-    (2, 60, 390, 'ABILITY', 'double_jump');
+    (2, 60, 390, 'ABILITY', 'double_jump'),
+
+    (3, 70, 360, 'ABILITY', 'wall_jump'),
+    (3, 750, 210, 'COIN', 'NULL'),
+    (3, 900, 120, 'COIN', 'NULL'),
+    (3, 930, 90, 'COIN', 'NULL'),
+    (3, 960, 60, 'COIN', 'NULL'),
+    (3, 1240, 50, 'ABILITY', 'ground_pound'),
+    (3, 570, 650, 'COIN', 'NULL'),
+    (3, 540, 650, 'COIN', 'NULL'),
+    (3, 510, 650, 'COIN', 'NULL'),
+    (3, 480, 650, 'COIN', 'NULL'),
+    (3, 800, 380, 'HEALTH', 'NULL'),
+    (3, 30, 650, 'COIN', 'NULL'),
+    (3, 60, 650, 'COIN', 'NULL'),
+    (3, 90, 650, 'COIN', 'NULL'),
+    (3, 30, 620, 'COIN', 'NULL'),
+    (3, 60, 620, 'COIN', 'NULL'),
+    (3, 90, 620, 'COIN', 'NULL'),
+    (3, 30, 590, 'COIN', 'NULL'),
+    (3, 60, 590, 'COIN', 'NULL'),
+    (3, 90, 590, 'COIN', 'NULL');
 
 -- ===============================
 -- ROOM CONNECTIONS (EDGE BASED)

@@ -15,13 +15,6 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * FIXED Main.java
- * Key fixes:
- * 1. Proper GameView initialization with player reference
- * 2. Correct screen bounds setup
- * 3. Fixed startGame() reload logic
- */
 public class Main extends Application {
 
     private Stage primaryStage;
@@ -117,7 +110,7 @@ public class Main extends Application {
         worldMap = WorldMap.getInstance();
         abilityManager.reset();
 
-        worldMap.transitionToRoom("starting_area", 100, 600);
+        worldMap.transitionToRoom("starting_area", 640, 600);
         sound.playMusic(0);
         startGame();
     }
@@ -170,17 +163,14 @@ public class Main extends Application {
         achievementsScreen.show();
     }
 
-    /**
-     * FIX: Properly start/restart game
-     */
     private void startGame() {
-        System.out.println("\n╔════════════════════════════════════════╗");
-        System.out.println("║    STARTING METROIDVANIA GAME         ║");
-        System.out.println("╚════════════════════════════════════════╝");
+        System.out.println("|========================================|");
+        System.out.println("|     STARTING METROIDVANIA GAME         |");
+        System.out.println("|========================================|");
 
         // Stop old game loop
         if (currentGameLoop != null) {
-            System.out.println("⏹️  Stopping previous game loop...");
+            System.out.println("Stopping previous game loop...");
             currentGameLoop.stop();
             currentGameLoop = null;
         }
@@ -190,7 +180,7 @@ public class Main extends Application {
         currentRoom.setDiscovered(true);
 
         int mapId = currentRoom.getMapId();
-        System.out.println("\n📍 Current Room: " + currentRoom.getName());
+        System.out.println("\nCurrent Room: " + currentRoom.getName());
         System.out.println("   Map ID: " + mapId);
         System.out.println("   World Position: (" + worldMap.getPlayerWorldX() + ", " + worldMap.getPlayerWorldY() + ")");
 
@@ -199,7 +189,7 @@ public class Main extends Application {
         GameView gameView = new GameView(mapId);
 
         if (gameView.getPlatforms().isEmpty()) {
-            System.err.println("⚠️  WARNING: No platforms loaded!");
+            System.err.println("WARNING: No platforms loaded!");
         } else {
             System.out.println("✓ GameView initialized with " + gameView.getPlatforms().size() + " platforms");
         }
@@ -337,7 +327,7 @@ public class Main extends Application {
         System.out.println("   Player Position: (" + player.getX() + ", " + player.getY() + ")");
         System.out.println("   Abilities Unlocked: " + abilityManager.getUnlockedAbilities().size());
         System.out.println("   Completion: " + abilityManager.getCompletionPercentage() + "%");
-        System.out.println("════════════════════════════════════════\n");
+        System.out.println("========================================\n");
     }
 
     private PauseScreen createPauseScreen(MetroidvaniaGameLoop gameLoop, GameStats stats) {

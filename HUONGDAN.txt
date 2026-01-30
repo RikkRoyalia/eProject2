@@ -1,0 +1,117 @@
+HƯỚNG DẪN SỬ DỤNG VÀ DEMO PROJECT
+================================
+
+Tên project: Shape Shifter – Metroidvania Game
+Công nghệ: Java, JavaFX, Database
+Mục đích: Demo prototype gameplay và hệ thống quản lý game
+
+
+1. YÊU CẦU HỆ THỐNG
+------------------
+- Hệ điều hành: Windows
+- JDK: JDK 25 trở lên
+- IDE: IntelliJ IDEA
+- Apache Maven: 3.8+
+- JavaFX SDK (được quản lý thông qua Maven)
+- Database: MySQL
+
+
+2. CẤU TRÚC PROJECT (TỔNG QUAN)
+-------------------------------
+- SHAIF/
+  ├─ Main.java                 : Entry point của game
+  ├─ model/                    : Player, Enemy, WorldMap, Item, Ability
+  ├─ view/                     : GameView, HUD, Minimap
+  ├─ controller/               : Input, DashController, GameLoop
+  ├─ database/                 : DAO, load map và room
+  ├─ screen/                   : Menu, Pause, Settings
+  ├─ util/                     : Test và helper
+  └─ resources/
+     ├─ image/                 : Background, asset hình ảnh
+     ├─ audio/                 : Âm thanh
+     └─ styles.css             : CSS cho player, enemy, platform
+
+
+3. CÁCH CHẠY PROJECT
+--------------------
+Bước 1:
+- Mở project bằng IDE.
+
+Bước 2:
+- Kiểm tra JDK đã được set đúng (JDK 25+).
+- Kiểm tra JavaFX đã được cấu hình nếu cần.
+
+Bước 3:
+- Chạy file sript.sql sử dụng MySQL
+- Chỉnh lại password, port, username,... trong src/main/java/SHAIF/database/DatabaseConnection.java
+
+Bước 4:
+- Chạy project
+- View -> Tool Windows -> Maven -> Plugins -> javafx -> javafx:run
+
+Bước 5:
+- Khi game khởi động, màn hình Menu sẽ xuất hiện.
+
+
+4. HƯỚNG DẪN CHƠI CƠ BẢN
+-----------------------
+- Di chuyển:
+  + A / ←  : Sang trái
+  + D / →  : Sang phải
+  + W / ↑  : Nhảy
+
+- Dash:
+  + I + A / ← hoặc D / → để dash trái / phải
+
+- Block:
+  + U : Nhấn giữ
+
+- Tạm dừng:
+  + ESC    : Mở Pause Menu
+
+
+5. LUỒNG DEMO ĐỀ XUẤT
+--------------------
+1. Vào New Game từ Menu.
+2. Di chuyển player, nhảy và tương tác platform.
+3. Cho player va chạm enemy để minh họa AI.
+4. Thu thập item hoặc ability.
+5. Di chuyển sang khu vực khác (room transition).
+6. Mở Pause Menu và Resume / Quit.
+
+
+6. DỮ LIỆU MAP VÀ DATABASE
+--------------------------
+- Toàn bộ map, platform, item và enemy được load từ database.
+- Không hardcode dữ liệu map trong source code.
+- Có thể chỉnh sửa database để thay đổi layout map.
+
+
+7. SAVE / LOAD GAME
+-------------------
+- Game tự động tạo save file khi Quit.
+- Nếu có save file, game cho phép Continue khi vào lại.
+- New Game sẽ xóa save cũ và tạo game mới.
+
+
+8. GIỚI HẠN CỦA PROJECT
+----------------------
+- Project là prototype, chưa tối ưu hiệu năng.
+- AI enemy ở mức cơ bản.
+- Số lượng map còn hạn chế.
+- Asset sử dụng nguồn miễn phí, không phải asset tự thiết kế.
+
+
+9. LƯU Ý KHI DEMO
+----------------
+- Nên chạy project ở chế độ cửa sổ hoặc fullscreen.
+- Không chỉnh sửa database trong lúc game đang chạy.
+- Nếu gặp lỗi load map, game sẽ fallback về map mặc định.
+
+
+10. KẾT LUẬN
+------------
+Project tập trung vào thiết kế hệ thống gameplay và kiến trúc phần mềm.
+Mục tiêu chính là minh họa khả năng tổ chức code, xử lý game loop,
+quản lý map, enemy và player theo hướng mở rộng.
+

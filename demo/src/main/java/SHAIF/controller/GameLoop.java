@@ -121,40 +121,29 @@ public class GameLoop {
         });
     }
 
-    private void victory() {
-        stop();
+    private void checkHazardCollision() {
+        javafx.geometry.Bounds playerBounds = player.getCurrentShape().getBoundsInParent();
 
-        if (perfectRun) {
-            achievementManager.checkAchievement("perfect_run", 1);
+        for (Rectangle hazard : gameView.getObstacles()) {
+            double px = player.getX();
+            double py = player.getY();
+            double ph = player.getHeight();
+
+            if (px >= hazard.getX() && px <= hazard.getX() + hazard.getWidth() &&
+                    py + ph >= hazard.getY()) {
+                gameOver();
+                return;
+            }
+//            if (playerBounds.intersects(hazard.getBoundsInParent())) {
+//                System.out.println("Player hit hazard!");
+//                gameOver();
+//                return;
+//            }
         }
-
-        gameData.setHighScore(stats.getScore());
-        gameData.addTotalScore(stats.getScore());
-        gameData.addPlayTime((int) stats.getPlayTime());
-
-        javafx.application.Platform.runLater(() -> {
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                    javafx.scene.control.Alert.AlertType.INFORMATION
-            );
-            alert.setTitle("Victory!");
-            alert.setHeaderText("Level Complete!");
-            alert.setContentText(
-                    "Congratulations! You completed the level!\n\n" +
-                            "Final Score: " + stats.getScore() + "\n" +
-                            "Time: " + stats.getFormattedTime() + "\n" +
-                            "Enemies Killed: " + stats.getEnemiesKilled() + "\n" +
-                            "Coins Collected: " + stats.getCoinsCollected() +
-                            (perfectRun ? "\n\nPerfect Run!" : "")
-            );
-            alert.showAndWait();
-
-            menuScreen.show();
-            primaryStage.setScene(menuScreen.getScene());
-        });
     }
 
     protected void checkCollisions() {
-        // CHANGED: Check all enemies
+        // Check all enemies
         for (Enemy enemy : enemies) {
             // Player dash into enemy
             if (dashController.checkCollision(enemy) && enemy.isActive()) {
@@ -171,30 +160,31 @@ public class GameLoop {
                 dashController.stopDash();
             }
 
-            // CHANGED: Check enemy's bullet
+            // Contact damage (touching enemy)
+            if (!player.isDashing() && enemy.isActive() && !player.isInvincible()) {
+                if (enemy.intersects(player.getCurrentShape())) {
+                    player.takeDamage();
+                    player.applyKnockback(enemy.getX(), enemy.getKnockbackForce());
+                    System.out.println("Player hit by enemy contact!");
+                }
+            }
+
+            // Check enemy's bullet
             Bullet bullet = enemy.getBullet();
             if (bullet != null && bullet.intersects(player.getCurrentShape()) && bullet.isActive()) {
                 if (player.getCurrentForm() == FormType.SQUARE) {
                     bullet.deactivate();
                 } else {
-                    player.takeDamage();
-                    bullet.deactivate();
+                    if (!player.isInvincible()) {  // Check invincibility
+                        player.takeDamage();
+                        player.applyKnockback(enemy.getX(), enemy.getKnockbackForce());
+                        bullet.deactivate();
+                    }
                 }
             }
         }
 
-        // Pit collision
-        for (Rectangle pit : gameView.getPits()) {
-            double px = player.getX();
-            double py = player.getY();
-            double ph = player.getHeight();
-
-            if (px >= pit.getX() && px <= pit.getX() + pit.getWidth() &&
-                    py + ph >= pit.getY()) {
-                gameOver();
-                return;
-            }
-        }
+        checkHazardCollision(); // Check ALL hazards!
 
         // Item collection
         Iterator<Item> itemIterator = gameView.getItems().iterator();

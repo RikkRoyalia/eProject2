@@ -113,13 +113,5 @@ public class GameData {
         int current = getCoins();
         props.setProperty("coins", String.valueOf(current + coins));
     }
-
-    public int getLevelsUnlocked() {
-        return Integer.parseInt(props.getProperty("levelsUnlocked", "1"));
-    }
-
-    public void setLevelsUnlocked(int levels) {
-        props.setProperty("levelsUnlocked", String.valueOf(levels));
-    }
 }
 

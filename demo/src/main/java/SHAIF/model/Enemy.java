@@ -27,7 +27,7 @@ public class Enemy implements InteractiveObjects {
     // Chasing for Chaser
     private Player targetPlayer;
     private double chaseSpeed = 2;
-    private double chaseRange = 200;
+    private double chaseRange = 80;
 
     // Boss
     private int health = 1;
@@ -215,6 +215,25 @@ public class Enemy implements InteractiveObjects {
         // Update bullet
         if (bullet != null) {
             bullet.update();
+        }
+    }
+
+    /**
+     * Get knockback force for this enemy type
+     */
+    public double getKnockbackForce() {
+        switch (enemyType) {
+            case BOSS:
+                return 150; // Strong knockback
+            case CHASER:
+                return 120;
+            case JUMPER:
+                return 100;
+            case PATROLLER:
+                return 80;
+            case SHOOTER:
+            default:
+                return 60; // Weak knockback
         }
     }
 

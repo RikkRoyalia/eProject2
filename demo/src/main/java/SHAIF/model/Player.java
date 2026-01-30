@@ -1,5 +1,6 @@
 package SHAIF.model;
 
+import SHAIF.controller.Sound;
 import javafx.scene.shape.*;
 import java.util.List;
 
@@ -24,6 +25,10 @@ public class Player implements Movement {
     private final double gravity = 0.5;
     private final double jumpForce = -10;
     private double groundLevel;
+    private double knockbackVelX = 0;
+    private double knockbackDecay = 0.85; // How fast knockback slows down (0.85 = 15% decay per frame)
+    private boolean isKnockedBack = false;
+
 
     // Shapes
     private final Rectangle squareForm;
@@ -43,6 +48,10 @@ public class Player implements Movement {
     private int jumpCount = 0;
     private boolean hasDashBoost = false;
     private long dashBoostEndTime = 0;
+
+    private boolean isInvincible = false;
+    private long invincibilityEndTime = 0;
+    private static final long INVINCIBILITY_DURATION = 1_500_000_000L; // 1.5 seconds
 
     private int currentWalkSpeed = walkSpeed;
 
@@ -172,12 +181,100 @@ public class Player implements Movement {
         updatePosition();
     }
 
+    /**
+     * Activate invincibility frames after taking damage
+     */
+    private void activateInvincibility() {
+        isInvincible = true;
+        invincibilityEndTime = System.nanoTime() + INVINCIBILITY_DURATION;
+    }
+
+    /**
+     * Check if player is currently invincible
+     */
+    public boolean isInvincible() {
+        if (isInvincible) {
+            if (System.nanoTime() > invincibilityEndTime) {
+                isInvincible = false;
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Take damage with invincibility check
+     */
+    public void takeDamage() {
+        if (isInvincible()) {
+            return; // No damage during invincibility frames
+        }
+
+        if (hasShield()) {
+            return; // Shield protects
+        }
+
+        hitCount++;
+        activateInvincibility();
+
+        // Play damage sound
+        Sound sound = new Sound();
+        sound.playSE(3); // receivedamage.wav
+
+        // Visual feedback
+        currentShape.getStyleClass().clear();
+        currentShape.getStyleClass().add("player-damaged");
+    }
+
+    /**
+     * Apply knockback when hit
+     */
+    public void applyKnockback(double enemyX, double knockbackForce) {
+        double direction = (x > enemyX) ? 1 : -1;
+
+        // Scale knockback based on enemy type
+        knockbackVelX = direction * (knockbackForce / 10); // Convert force to velocity
+        velY = -6;
+
+        isKnockedBack = true;
+    }
+
     @Override
     public void update() {
         // Update power-ups
         updatePowerUps();
 
-        if (currentForm == FormType.CIRCLE) {
+        // Invincibility blinking effect
+        if (isInvincible()) {
+            // Blink by toggling opacity
+            long timeLeft = invincibilityEndTime - System.nanoTime();
+            boolean blink = (timeLeft / 100_000_000L) % 2 == 0; // Blink every 0.1s
+            currentShape.setOpacity(blink ? 0.5 : 1.0);
+        } else {
+            currentShape.setOpacity(1.0);
+        }
+
+        // Apply knockback velocity
+        if (isKnockedBack) {
+            // Apply knockback movement
+            x += knockbackVelX;
+
+            // Decay knockback velocity (slow down over time)
+            knockbackVelX *= knockbackDecay;
+
+            // Stop knockback when velocity is very small
+            if (Math.abs(knockbackVelX) < 0.5) {
+                knockbackVelX = 0;
+                isKnockedBack = false;
+                System.out.println("Knockback ended");
+            }
+
+            applyBounds();
+            updatePosition();
+        }
+
+        if (currentForm == FormType.CIRCLE && !isKnockedBack) {
             if (movingLeft) {
                 x -= currentWalkSpeed;
             }
@@ -307,17 +404,6 @@ public class Player implements Movement {
         leftTriangleForm.setTranslateY(y);
     }
 
-    public void takeDamage() {
-        if (hasShield()) {
-            // Shield bảo vệ khỏi damage
-            return;
-        }
-
-        hitCount++;
-        currentShape.getStyleClass().clear();
-        currentShape.getStyleClass().add("player-damaged");
-    }
-
     public void heal() {
         if (hitCount > 0) {
             hitCount--;
@@ -413,4 +499,5 @@ public class Player implements Movement {
     public boolean hasShield() { return hasShield && System.nanoTime() <= shieldEndTime; }
     public boolean hasSpeedBoost() { return hasSpeedBoost && System.nanoTime() <= speedBoostEndTime; }
     public boolean hasDoubleJump() { return hasDoubleJump; }
+    public boolean isKnockedBack() { return isKnockedBack; }
 }

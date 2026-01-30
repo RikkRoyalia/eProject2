@@ -37,10 +37,14 @@ public class KeyInput {
         scene.setOnKeyPressed(e -> {
             // Di chuyển
             if (e.getCode() == KeyCode.LEFT || e.getCode() == KeyCode.A) {
-                player.moveLeft();
+                if (!player.isKnockedBack()) {
+                    player.moveLeft();
+                }
             }
             if (e.getCode() == KeyCode.RIGHT || e.getCode() == KeyCode.D) {
-                player.moveRight();
+                if (!player.isKnockedBack()) {
+                    player.moveRight();
+                }
             }
 
             // Nhảy
